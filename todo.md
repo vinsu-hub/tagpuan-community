@@ -131,3 +131,21 @@
 
 - [x] Add explicit header, mobile-menu, event-ribbon, and dismiss-button spacing/touch-target improvements.
 - [x] Re-check the header and reminder ribbon at desktop and mobile widths after the spacing changes.
+
+## Dedicated Full-Page Tabs
+
+- [x] Make About a complete standalone page with its own hero, four-question introduction, New Here? path, philosophy, activity context, and Join CTA.
+- [x] Make What’s Going On a complete standalone Events page with event discovery, detail content, RSVP, attendance states, recap, and cross-links.
+- [x] Make The Wall a complete standalone page with public posting, note gallery, archive, moderation feedback, pins, reports, and pagination.
+- [x] Make Ginagawa Ko Ngayon a complete standalone Projects page with project context, tag summary, public update form, feed, pagination, and reports.
+- [x] Make Kilala Mo Ba Sila? a complete standalone People page with spotlight content, member context, event associations, and Join CTA.
+- [x] Make Join a complete standalone conversion page with Facebook CTA, newsletter interaction, community expectations, venue information, and event/Wall links.
+- [x] Make all navigation labels link to dedicated route URLs instead of homepage section anchors.
+- [x] Add consistent full-page header, reminder ribbon, footer, active navigation, back-to-home, loading, empty, error, and 404 behavior across routes.
+- [x] Verify all dedicated pages on desktop and mobile and run typecheck, tests, formatting, and production build.
+
+## Dedicated Shell Follow-up
+
+- [x] Add active-page navigation styling in the shared inner-page shell based on the current route.
+- [x] Add an explicit back-to-home affordance on inner pages and verify it is keyboard accessible.
+- [x] Re-run route screenshots after active navigation and back-to-home updates.

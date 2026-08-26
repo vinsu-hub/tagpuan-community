@@ -12,6 +12,7 @@ import {
   Users,
 } from "lucide-react";
 import { useState } from "react";
+import { useLocation } from "wouter";
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const RSVP_URL = "https://lu.ma/";
@@ -41,6 +42,7 @@ function PageFrame({
   children: React.ReactNode;
 }) {
   const [navOpen, setNavOpen] = useState(false);
+  const [location] = useLocation();
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--espresso)]">
       <a
@@ -68,22 +70,52 @@ function PageFrame({
             id="inner-page-links"
             className={`nav-links ${navOpen ? "open" : ""}`}
           >
-            <a href="/about" onClick={() => setNavOpen(false)}>
+            <a
+              className={location === "/about" ? "active" : ""}
+              aria-current={location === "/about" ? "page" : undefined}
+              href="/about"
+              onClick={() => setNavOpen(false)}
+            >
               About
             </a>
-            <a href="/events" onClick={() => setNavOpen(false)}>
+            <a
+              className={location === "/events" ? "active" : ""}
+              aria-current={location === "/events" ? "page" : undefined}
+              href="/events"
+              onClick={() => setNavOpen(false)}
+            >
               What's Going On
             </a>
-            <a href="/wall" onClick={() => setNavOpen(false)}>
+            <a
+              className={location === "/wall" ? "active" : ""}
+              aria-current={location === "/wall" ? "page" : undefined}
+              href="/wall"
+              onClick={() => setNavOpen(false)}
+            >
               The Wall
             </a>
-            <a href="/projects" onClick={() => setNavOpen(false)}>
+            <a
+              className={location === "/projects" ? "active" : ""}
+              aria-current={location === "/projects" ? "page" : undefined}
+              href="/projects"
+              onClick={() => setNavOpen(false)}
+            >
               Ginagawa Ko Ngayon
             </a>
-            <a href="/people" onClick={() => setNavOpen(false)}>
+            <a
+              className={location === "/people" ? "active" : ""}
+              aria-current={location === "/people" ? "page" : undefined}
+              href="/people"
+              onClick={() => setNavOpen(false)}
+            >
               Kilala Mo Ba Sila?
             </a>
-            <a href="/join" onClick={() => setNavOpen(false)}>
+            <a
+              className={location === "/join" ? "active" : ""}
+              aria-current={location === "/join" ? "page" : undefined}
+              href="/join"
+              onClick={() => setNavOpen(false)}
+            >
               Join
             </a>
             <a
@@ -113,6 +145,9 @@ function PageFrame({
           <p className="section-copy light" style={{ maxWidth: 650 }}>
             {intro}
           </p>
+          <a className="back-home-link focus-ring" href="/">
+            <ArrowRight size={15} /> Back to the home scrapbook
+          </a>
         </div>
       </header>
       <main id="page-content">{children}</main>

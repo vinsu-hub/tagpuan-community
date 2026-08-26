@@ -2117,3 +2117,49 @@ select:focus-visible {
     flex: 0 0 20px;
   }
 }
+
+/* Dedicated-page shell alignment */
+.nav-links a.active:not(.pill) {
+  color: var(--warm-white);
+  position: relative;
+}
+.nav-links a.active:not(.pill)::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -9px;
+  height: 2px;
+  background: var(--ember);
+  border-radius: 99px;
+}
+.back-home-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 26px;
+  color: var(--warm-white);
+  font:
+    600 0.82rem "DM Mono",
+    monospace;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+.back-home-link svg {
+  transform: rotate(180deg);
+}
+.back-home-link:hover {
+  color: var(--ember);
+}
+@media (max-width: 760px) {
+  .nav-links a.active:not(.pill)::after {
+    display: none;
+  }
+  .nav-links a.active:not(.pill) {
+    color: var(--ember);
+  }
+  .back-home-link {
+    margin-top: 21px;
+    font-size: 0.72rem;
+  }
+}

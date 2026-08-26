@@ -372,16 +372,16 @@ export default function Home() {
               className={`nav-links ${navOpen ? "open" : ""}`}
               id="site-links"
             >
-              <a href="#about" onClick={() => setNavOpen(false)}>
+              <a href="/about" onClick={() => setNavOpen(false)}>
                 About
               </a>
-              <a href="#events" onClick={() => setNavOpen(false)}>
+              <a href="/events" onClick={() => setNavOpen(false)}>
                 What's Going On
               </a>
-              <a href="#wall" onClick={() => setNavOpen(false)}>
+              <a href="/wall" onClick={() => setNavOpen(false)}>
                 The Wall
               </a>
-              <a href="#join" onClick={() => setNavOpen(false)}>
+              <a href="/join" onClick={() => setNavOpen(false)}>
                 Join
               </a>
               <a
