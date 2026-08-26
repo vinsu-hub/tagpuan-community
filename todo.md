@@ -158,3 +158,12 @@
 - [x] Preserve immediate content visibility when JavaScript is unavailable or IntersectionObserver is unsupported.
 - [x] Respect prefers-reduced-motion by disabling transforms and delays while retaining readable opacity.
 - [x] Verify scroll animations on homepage and representative dedicated pages at desktop and mobile widths, then run typecheck, tests, formatting, and production build.
+
+## What’s Going On Event Fixes
+
+- [x] Fix the white-on-white activity callout text so “Make a little room / Speed Friending / Hear Me Out / DJ Sets” and “Stay for the fun / Open Mic / Games / Free Drink” meet readable contrast on their light card background.
+- [x] Rename the Sunday Session event/activity copy to “Saturday Night Session” everywhere it appears in the event section and relevant event details.
+- [x] Add click-to-open event context modal behavior to event cards.
+- [x] Include event title, date, time, venue, description/context, activities, RSVP count/state, RSVP CTA, and close control in the modal.
+- [x] Add keyboard Escape handling, focus management, backdrop close behavior, accessible dialog labels, and mobile responsive modal layout.
+- [x] Verify event section contrast, Saturday copy, modal content, and desktop/mobile interaction states, then run typecheck, tests, formatting, and production build.

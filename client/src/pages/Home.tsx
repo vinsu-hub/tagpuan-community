@@ -92,7 +92,7 @@ const events = [
   {
     id: "sunday-sessions",
     date: "AUG 29 · SATURDAY",
-    title: "Sunday Sessions",
+    title: "Saturday Night Session",
     venue: "The Social Room",
     time: "7:00 PM",
     description:
@@ -102,6 +102,14 @@ const events = [
     capacity: 30,
     initials: ["M", "A", "J"],
     rotation: "-1.2deg",
+    activities: [
+      "Speed Friending",
+      "Hear Me Out",
+      "DJ Sets",
+      "Open Mic",
+      "Games",
+      "Free Drink",
+    ],
   },
   {
     id: "open-table",
@@ -116,6 +124,7 @@ const events = [
     capacity: 24,
     initials: ["K", "L", "S"],
     rotation: "1.4deg",
+    activities: ["Open Table", "Merienda", "Project sharing"],
   },
   {
     id: "night-shift",
@@ -130,6 +139,7 @@ const events = [
     capacity: 32,
     initials: [],
     rotation: "-0.8deg",
+    activities: ["Open Mic", "DJ Sets", "Free Drink"],
   },
 ];
 
@@ -153,7 +163,7 @@ const spotlight = {
   role: "Product designer, weekend potter",
   quote:
     "What I'm working on right now: a tiny ceramic lamp series, and getting better at asking people what they are excited about.",
-  event: "FEATURED AT: SUNDAY SESSIONS · AUG 29",
+  event: "FEATURED AT: SATURDAY NIGHT SESSION · AUG 29",
 };
 
 const aboutItems = [
@@ -201,6 +211,7 @@ export default function Home() {
   const [projectMessage, setProjectMessage] = useState("");
   const [spotlightIndex, setSpotlightIndex] = useState(0);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [newsletterState, setNewsletterState] = useState<
     "idle" | "success" | "error"
@@ -211,6 +222,8 @@ export default function Home() {
   );
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
   const lightboxTriggerRef = useRef<HTMLButtonElement>(null);
+  const eventModalCloseRef = useRef<HTMLButtonElement>(null);
+  const eventTriggerRef = useRef<HTMLElement>(null);
   const [wallArchive, setWallArchive] = useState(false);
   const [projectPage, setProjectPage] = useState(1);
   const [pinnedNoteIds, setPinnedNoteIds] = useState<number[]>([]);
@@ -285,7 +298,10 @@ export default function Home() {
     ? cmsEvents.map((event, index) => ({
         id: event.slug,
         date: event.dateLabel,
-        title: event.title,
+        title:
+          event.slug === "sunday-sessions"
+            ? "Saturday Night Session"
+            : event.title,
         venue: event.venue,
         time: event.timeLabel,
         description: event.description,
@@ -295,8 +311,34 @@ export default function Home() {
         capacity: event.capacity ?? 32,
         initials: [],
         rotation: `${index % 2 ? 1.3 : -1.1}deg`,
+        activities:
+          event.slug === "sunday-sessions"
+            ? [
+                "Speed Friending",
+                "Hear Me Out",
+                "DJ Sets",
+                "Open Mic",
+                "Games",
+                "Free Drink",
+              ]
+            : ["Open Table", "Merienda", "Project sharing"],
       }))
     : events;
+  const selectedEvent =
+    displayedEvents.find(event => event.id === selectedEventId) ?? null;
+  useEffect(() => {
+    if (!selectedEvent) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") setSelectedEventId(null);
+    };
+    window.addEventListener("keydown", onKeyDown);
+    eventModalCloseRef.current?.focus();
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      eventTriggerRef.current?.focus();
+    };
+  }, [selectedEvent]);
+
   const currentSpotlight = useMemo(() => {
     const items = cmsSpotlights?.length ? cmsSpotlights : [spotlight];
     return items[spotlightIndex % items.length];
@@ -603,6 +645,21 @@ export default function Home() {
                       { "--rotation": event.rotation } as React.CSSProperties
                     }
                     key={event.id}
+                    role="button"
+                    tabIndex={0}
+                    aria-haspopup="dialog"
+                    aria-label={`View details for ${event.title}`}
+                    onClick={clickEvent => {
+                      eventTriggerRef.current = clickEvent.currentTarget;
+                      setSelectedEventId(event.id);
+                    }}
+                    onKeyDown={keyEvent => {
+                      if (keyEvent.key === "Enter" || keyEvent.key === " ") {
+                        keyEvent.preventDefault();
+                        eventTriggerRef.current = keyEvent.currentTarget;
+                        setSelectedEventId(event.id);
+                      }
+                    }}
                   >
                     <div className="event-card-bg" aria-hidden="true" />
                     <div className="event-card-inner">
@@ -639,6 +696,7 @@ export default function Home() {
                           href={RSVP_URL}
                           target="_blank"
                           rel="noreferrer"
+                          onClick={clickEvent => clickEvent.stopPropagation()}
                         >
                           RSVP for this one <ArrowRight size={13} />
                         </a>
@@ -648,6 +706,7 @@ export default function Home() {
                           target="_blank"
                           rel="noreferrer"
                           aria-label={`RSVP: ${rsvpCopy}`}
+                          onClick={clickEvent => clickEvent.stopPropagation()}
                         >
                           {event.initials.length > 0 && (
                             <span className="avatar-stack">
@@ -1245,6 +1304,69 @@ export default function Home() {
           </div>
         </div>
       </footer>
+
+      {selectedEvent && (
+        <div
+          className="event-modal-backdrop"
+          role="presentation"
+          onClick={() => setSelectedEventId(null)}
+        >
+          <section
+            className="event-modal-panel"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="event-modal-title"
+            onClick={event => event.stopPropagation()}
+          >
+            <button
+              ref={eventModalCloseRef}
+              className="event-modal-close focus-ring"
+              type="button"
+              onClick={() => setSelectedEventId(null)}
+              aria-label="Close event details"
+            >
+              ×
+            </button>
+            <p className="section-kicker">next tagpuan</p>
+            <p className="event-date">{selectedEvent.date}</p>
+            <h2 id="event-modal-title">{selectedEvent.title}</h2>
+            <p className="event-modal-description">
+              {selectedEvent.description}
+            </p>
+            <div className="event-meta event-modal-meta">
+              <span>
+                <MapPin size={14} /> {selectedEvent.venue}
+              </span>
+              <span>
+                <Clock3 size={14} /> {selectedEvent.time}
+              </span>
+            </div>
+            <div className="event-modal-activities">
+              <p className="section-kicker">what’s in it</p>
+              <ul>
+                {selectedEvent.activities.map(activity => (
+                  <li key={activity}>{activity}</li>
+                ))}
+              </ul>
+            </div>
+            <div className="event-modal-actions">
+              <a
+                className="pill pill-primary"
+                href={RSVP_URL}
+                target="_blank"
+                rel="noreferrer"
+              >
+                RSVP for this one <ArrowRight size={15} />
+              </a>
+              <span className="event-modal-count">
+                {selectedEvent.count
+                  ? `${selectedEvent.count} are going`
+                  : "Be the first to RSVP"}
+              </span>
+            </div>
+          </section>
+        </div>
+      )}
 
       {lightboxIndex !== null && (
         <div
