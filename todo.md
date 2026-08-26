@@ -1,0 +1,78 @@
+# Project TODO
+
+- [x] Establish Tagpuan brand tokens from the supplied nipa-hut logo and scrapbook concept references: Espresso, Woven Tan, restrained Tagpuan Orange, Warm Cream, Warm White, Ember Gold, and Wall-only paper-note colors.
+- [x] Add responsive mobile-first navigation with accessible section links, logo/wordmark, menu behavior, focus states, and persistent event reminder placement.
+- [x] Build the hero with warm grainy tropical/night visual treatment, hut mark, Tagpuan wordmark, collective mission, next-gathering emphasis, primary “Join the Collective” CTA linked to the Facebook Group/Page, secondary Facebook CTA, and scroll cue.
+- [x] Implement the dismissible-per-session “Sunod na Tagpuan” nearest-upcoming-event reminder, including event-card anchor linking, session-only dismissal, and responsive layout.
+- [x] Build the About Tagpuan section with the four exact question labels, scrapbook imagery, closing statement, and no numbered markers.
+- [x] Build the static “New Here?” three-step starter path with links to the nearest event and Ginagawa Ko Ngayon / Passion Project Log.
+- [x] Create CMS-ready event data structures for title, date, time, venue, RSVP URL, capacity, event image, description, activities, and upcoming/past status.
+- [x] Build the “What’s Going On” events section with horizontally scrollable scrapbook event cards, date/time/venue metadata, RSVP actions, live-or-fallback RSVP counts, and exact activity callouts.
+- [x] Implement natural RSVP counter states: first RSVP, current attendee count, and near-capacity messaging; make the badge link to the same RSVP destination as the card CTA.
+- [x] Add the “Ilang Tapos Na?” manually configurable session counter beneath the events heading.
+- [x] Implement the Recap Wall with repeatable real photography entries, captions, torn-photo treatments, lightbox viewing, keyboard controls, swipe-friendly behavior, and a next-event CTA.
+- [x] Build the public Tagpuan Wall as a chronological corkboard-style note gallery with Wall-only note colors, random rotation, tape, pushpins, aging treatment, character counter, optional name, anonymous fallback, and no-login posting.
+- [x] Add Wall submission loading, success, inline validation, moderation rejection, rate-limit feedback, empty, pagination/archive, and server-error states.
+- [x] Add Wall pushpin interactions with count display, duplicate-action prevention, reporting via quiet toast, hover/long-press affordances, and accessible labels.
+- [x] Add Wall Archive pagination for notes older than approximately two weeks without deleting historical notes.
+- [x] Build the “Ginagawa Ko Ngayon” Passion Project Log with no-login one-line posting, name/anonymous option, tag selection, character cap, newest-first chronological feed, weekly tag-count summary, compact index-card styling, pagination, and reporting.
+- [x] Add shared moderation safeguards for Wall and Passion Project Log: client/server profanity and slur filtering, normalized input, session-based rate limiting, safe error messages, and report persistence or moderation queue.
+- [x] Build repeatable CMS-ready “Kilala Mo Ba Sila?” Member Spotlight content with name, role/craft, quote/blurb, photo, event tag, alt text, weekly/per-event rotation, carousel controls, and pushpin-style indicators.
+- [ ] Use final real Tagpuan photography for hero, event cards, recap photos, and member spotlights; keep grain/dust/scratch character while optimizing assets and adding captions/alt text.
+- [x] Build the Join section with woven texture, scrapbook note, “work on what excites you.” statement, supporting copy, repeated Facebook CTA, and exact community messaging.
+- [x] Implement the wall-note-style newsletter signup with email validation, accessible submission, integration boundary for Mailchimp/Buttondown/etc., handwritten confirmation state, and failure/retry state.
+- [x] Build the footer with hut logo, Tagpuan wordmark, mission restatement, Facebook, RSVP/Luma, Instagram-if-applicable, contact links, “see you at the hut :)” sign-off, and “Where We Usually Are” mini-map.
+- [x] Implement static warm-toned venue mini-map with recurring-location hut pins and links that open the visitor’s preferred map app; avoid an embedded map SDK for v1.
+- [x] Prepare optional v2 module boundaries for the manually curated “Hear Me Out” ticket-stub archive and client-side Icebreaker Generator linked from Speed Friending.
+- [x] Add shared scrapbook primitives: torn-edge cards, washi tape, pushpins, paper shadows, dotted-border activity boxes, grain overlays, woven texture tile, pill CTAs, and responsive image cropping.
+- [x] Add typography system: bubbly display face, handwritten accent, humanist body face, and utility monospace/condensed labels; verify readability and fallback stacks.
+- [x] Add lightweight motion: hero fade/rise, About reveal, scrapbook hover straighten, new-note drop/settle, lightbox transitions, active button feedback, and no parallax or scroll-jacking.
+- [x] Respect prefers-reduced-motion by replacing transform-heavy motion with opacity/fade alternatives and preserving usable focus/interaction behavior.
+- [x] Ensure mobile-first responsive behavior for navigation, horizontal event and recap scrolling, Wall layout, forms, lightbox, spotlights, footer map, and all CTA targets.
+- [x] Ensure keyboard accessibility, visible focus rings, semantic landmarks, heading hierarchy, skip/escape behavior, dialog focus management, button labels, form labels, status announcements, and touch target sizing.
+- [x] Verify readable contrast over dark photographic sections and textures; use gradient scrims and legible handwritten font sizes rather than relying on opacity.
+- [x] Add loading, empty, success, validation, moderation rejection, rate-limit, integration fallback, and generic error states across interactive modules.
+- [x] Store media outside the project and reference uploaded web-safe URLs; use responsive image sizing, lazy loading below the fold, compression, and small tileable texture assets.
+- [x] Extend the database schema and helpers for public notes, project updates, pins/reactions, reports, events, spotlights, recap photos, and newsletter submissions where appropriate; keep photo bytes in storage and metadata in the database.
+- [x] Add typed tRPC public procedures and mutations for event retrieval, notes, project updates, pin/report actions, spotlights, recap content, and newsletter capture; keep auth optional for public participation and admin-only for moderation/content management.
+- [x] Add CMS/admin content management approach for repeatable events, spotlights, recap photos, next-event selection, session counter, links, venue pins, and v2 content without redesigning the homepage.
+- [x] Add tests for moderation, character limits, rate limiting, chronological ordering, pagination, RSVP fallback behavior, session-only reminder dismissal, duplicate pins, report submission, newsletter validation, and public no-login permissions.
+- [x] Run type checking, formatting, unit tests, production build, and inspect runtime logs.
+- [x] Verify desktop and mobile screenshots for the homepage and interactive states; manually check keyboard and reduced-motion behavior.
+- [ ] Save the completed project checkpoint only after all implemented items are marked complete.
+- [ ] Deliver the latest checkpoint version to the user with clear notes on implemented scope, remaining v2 items, configuration requirements, and publish instructions.
+
+## Architecture Vocabulary
+
+- **Public visitor:** Can browse all homepage content and participate in the Wall and Passion Project Log without creating an account.
+- **Session identity:** Anonymous browser/session identifier used only for lightweight rate limiting and duplicate interaction prevention; not a user account.
+- **Content manager:** Admin-authenticated operator who manages events, spotlights, recap photos, links, session counter, and moderation queues.
+- **Event:** Repeatable gathering record shared by event cards, nearest-event ribbon, reminder, RSVP counter, starter path, and recap CTA.
+- **Wall note:** Short public message with note color, author label, timestamps, moderation status, pin count, and archive lifecycle.
+- **Project update:** Short public status entry with author label, category tag, timestamps, moderation status, and chronological pagination.
+- **Spotlight:** Manually curated member feature with portrait metadata and event association.
+- **Recap photo:** Manually curated event photo with caption, alt text, ordering, and lightbox grouping.
+- **Venue pin:** Named recurring location with map URL and hut-pin presentation.
+- **Moderation report:** Quiet visitor-submitted flag associated with a public note or project update.
+- **Optional v2 modules:** Hear Me Out archive and Icebreaker Generator, intentionally isolated from v1 homepage density.
+
+## Fixed Content Constraints
+
+- [ ] Preserve exact labels: “Join the Collective,” “New Here?,” “What’s Going On,” “Ginagawa Ko Ngayon,” and “Hear Me Out.”
+- [ ] Keep primary Join actions linked to the Tagpuan Facebook Group/Page.
+- [ ] Do not require login for Wall or Passion Project Log posting.
+- [ ] Make event reminder dismissal session-only; it must reappear on the next visit.
+- [ ] Do not fabricate customer reviews, ratings, testimonials, or user-generated content.
+- [ ] Do not use generic AI-startup styling, numbered About markers, excessive texture repetition, social-media ranking, or infinite-scroll behavior.
+
+## QA Follow-ups Identified
+
+- [ ] Wire homepage events, RSVP fallback/counts, recap photos, spotlights, venue pins, Wall notes, and project updates to tRPC/DB instead of hardcoded local-only rendering.
+- [ ] Implement rendered Wall and Passion Project feeds with pagination, archive UI, report/pin controls, duplicate prevention, chronological display, aging treatment, and submitted-content author fallback.
+- [ ] Add admin-only content-management procedures and a minimal management UI for events, session counter/config, spotlights, recap photos, venue pins, and moderation queue.
+- [ ] Complete accessibility and motion gaps: skip link, Escape/focus management for lightbox, hero/About/note/lightbox transitions, and explicit reduced-motion verification.
+- [ ] Expand tests to cover rate limiting, ordering, pagination, reminder session dismissal, duplicate pins, report submission, RSVP fallback, and formatting.
+- [ ] Replace reference-image placeholders with final real Tagpuan photography supplied by the community.
+- [ ] Configure an external newsletter provider boundary if Mailchimp/Buttondown integration is required beyond database capture.
+- [ ] Add visible Hear Me Out archive and Icebreaker Generator module entry points when v2 scope is activated.
+- [ ] Run the formatter and include its result in final verification.
