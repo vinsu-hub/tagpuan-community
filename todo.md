@@ -149,3 +149,12 @@
 - [x] Add active-page navigation styling in the shared inner-page shell based on the current route.
 - [x] Add an explicit back-to-home affordance on inner pages and verify it is keyboard accessible.
 - [x] Re-run route screenshots after active navigation and back-to-home updates.
+
+## Scroll Animation Pass
+
+- [x] Audit the homepage and dedicated pages for major scroll landmarks that should reveal as they enter the viewport.
+- [x] Add a lightweight IntersectionObserver-based reveal system for hero-adjacent sections, cards, notes, projects, spotlights, recap photos, forms, and footer content.
+- [x] Use restrained scrapbook motion: fade-up, slight settle, staggered card reveals, and subtle image lift without parallax or scroll-jacking.
+- [x] Preserve immediate content visibility when JavaScript is unavailable or IntersectionObserver is unsupported.
+- [x] Respect prefers-reduced-motion by disabling transforms and delays while retaining readable opacity.
+- [x] Verify scroll animations on homepage and representative dedicated pages at desktop and mobile widths, then run typecheck, tests, formatting, and production build.

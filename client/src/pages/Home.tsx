@@ -36,6 +36,30 @@ const TAGPUAN_LOGO_URL = "/manus-storage/tagpuanlogotransparent_92d74ba9.png";
 const TAGPUAN_TYPE_URL = "/manus-storage/TYPOGRAPHYONLY_d8733b2d.png";
 const TAGPUAN_HUT_URL = "/manus-storage/LOGOONLY_7725599d.png";
 
+function useScrollReveal() {
+  useEffect(() => {
+    const items = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-reveal]")
+    );
+    if (!("IntersectionObserver" in window)) {
+      items.forEach(item => item.classList.add("is-visible"));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      entries =>
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        }),
+      { threshold: 0.12, rootMargin: "0px 0px -48px 0px" }
+    );
+    items.forEach(item => observer.observe(item));
+    return () => observer.disconnect();
+  }, []);
+}
+
 function HutMark({ size = 48 }: { size?: number }) {
   return (
     <img
@@ -163,6 +187,7 @@ const projectTags = [
 ];
 
 export default function Home() {
+  useScrollReveal();
   const [navOpen, setNavOpen] = useState(false);
   const [ribbonVisible, setRibbonVisible] = useState(true);
   const [wallOpen, setWallOpen] = useState(false);
@@ -461,7 +486,7 @@ export default function Home() {
       </header>
 
       <main id="main-content">
-        <section className="about section-pad" id="about">
+        <section data-reveal className="about section-pad" id="about">
           <div className="section-wrap">
             <p className="section-kicker">meet tagpuan</p>
             <h2 className="section-title">
@@ -541,7 +566,11 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="events section-pad grain-dark" id="events">
+        <section
+          data-reveal
+          className="events section-pad grain-dark"
+          id="events"
+        >
           <div className="section-wrap">
             <div className="event-head">
               <div>
@@ -711,7 +740,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="wall section-pad" id="wall">
+        <section data-reveal className="wall section-pad" id="wall">
           <div className="section-wrap">
             <div className="wall-head">
               <div>
@@ -874,7 +903,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="projects section-pad" id="projects">
+        <section data-reveal className="projects section-pad" id="projects">
           <div className="section-wrap">
             <div className="projects-head">
               <div>
@@ -1023,7 +1052,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="spotlight section-pad" id="spotlight">
+        <section data-reveal className="spotlight section-pad" id="spotlight">
           <div className="section-wrap">
             <p className="section-kicker">people make the place</p>
             <h2 className="section-title">Kilala Mo Ba Sila?</h2>
@@ -1073,7 +1102,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="join section-pad" id="join">
+        <section data-reveal className="join section-pad" id="join">
           <div className="section-wrap join-grid">
             <div className="join-note">
               <span className="tape" aria-hidden="true" />

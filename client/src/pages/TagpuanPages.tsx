@@ -11,12 +11,36 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const RSVP_URL = "https://lu.ma/";
 const TAGPUAN_LOGO_URL = "/manus-storage/LOGOONLY_7725599d.png";
+
+function useScrollReveal() {
+  useEffect(() => {
+    const items = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-reveal]")
+    );
+    if (!("IntersectionObserver" in window)) {
+      items.forEach(item => item.classList.add("is-visible"));
+      return;
+    }
+    const observer = new IntersectionObserver(
+      entries =>
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            observer.unobserve(entry.target);
+          }
+        }),
+      { threshold: 0.12, rootMargin: "0px 0px -48px 0px" }
+    );
+    items.forEach(item => observer.observe(item));
+    return () => observer.disconnect();
+  }, []);
+}
 
 function HutMark({ size = 36 }: { size?: number }) {
   return (
@@ -41,6 +65,7 @@ function PageFrame({
   intro: string;
   children: React.ReactNode;
 }) {
+  useScrollReveal();
   const [navOpen, setNavOpen] = useState(false);
   const [location] = useLocation();
   return (
@@ -175,7 +200,7 @@ export function EventsPage() {
       title="What's Going On?"
       intro="A little focus. A little chaos. A lot of people making room for one another. Find the next thing that feels like your kind of evening."
     >
-      <section className="section-pad">
+      <section data-reveal className="section-pad">
         <div className="section-wrap">
           <div
             className="events-scroll"
@@ -287,7 +312,7 @@ export function AboutPage() {
       title="A meeting place for the unfinished."
       intro="Tagpuan is an open collective for people building their passions — not for school, not for work, and never only for people who already know what they are doing."
     >
-      <section className="about section-pad">
+      <section data-reveal className="about section-pad">
         <div className="section-wrap">
           <div className="about-grid">
             {[
@@ -370,7 +395,7 @@ export function WallPage() {
       title="The Tagpuan Wall"
       intro="Pin something small. Leave a trace. Come back later and see what the collective is carrying together."
     >
-      <section className="wall section-pad">
+      <section data-reveal className="wall section-pad">
         <div className="section-wrap">
           <div className="wall-board">
             <div className="board-prompts">
@@ -439,7 +464,7 @@ export function ProjectsPage() {
       title="Ginagawa Ko Ngayon"
       intro="A small, chronological log of what the collective is making right now. Not a feed to doomscroll — just enough to make the work feel less alone."
     >
-      <section className="projects section-pad">
+      <section data-reveal className="projects section-pad">
         <div className="section-wrap">
           <div className="tag-summary">
             <span className="tag-chip">14 in Tech</span>
@@ -475,7 +500,7 @@ export function PeoplePage() {
       title="Kilala Mo Ba Sila?"
       intro="Real people, real work in progress, and the small details that turn a gathering into a community."
     >
-      <section className="spotlight section-pad">
+      <section data-reveal className="spotlight section-pad">
         <div className="section-wrap">
           <div className="spotlight-card">
             <div
@@ -512,7 +537,7 @@ export function JoinPage() {
       title="Work on what excites you."
       intro="Meet people. Work on your passions. Share your progress. Come for one gathering, or keep finding your way back."
     >
-      <section className="join section-pad">
+      <section data-reveal className="join section-pad">
         <div className="section-wrap join-grid">
           <div className="join-note">
             <h3>An open collective for curious minds.</h3>
