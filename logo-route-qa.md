@@ -1,0 +1,3 @@
+# Route-by-route logo QA
+
+Post-logo screenshot passes covered `/`, `/about`, `/events`, `/wall`, `/projects`, `/people`, and `/join` at 1280×720 and 390×844. All routes use the supplied persistent transparent asset in the shared header/ribbon/footer shell. The logo remains legible on the dark hero/header treatment, scales down within the mobile navigation, and remains proportionate in the footer and ribbon. The light scrapbook content sections do not currently contain standalone logo placements; they use typography, texture, and card motifs instead, so no additional light-surface logo treatment is required for the current route set.

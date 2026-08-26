@@ -76,3 +76,28 @@
 - [x] Configure a database-backed newsletter capture boundary; external provider credentials remain optional configuration.
 - [x] Add visible Hear Me Out archive and Icebreaker Generator module entry points when v2 scope is activated.
 - [x] Run the formatter and include its result in final verification.
+
+## Multi-page Expansion
+
+- [x] Define aligned routes for Home, About, What’s Going On / Events, The Tagpuan Wall, Ginagawa Ko Ngayon / Projects, Kilala Mo Ba Sila? / People, Join, and optional v2 pages.
+- [x] Create a shared multi-page shell with consistent Tagpuan branding, responsive navigation, active-page states, next-gathering ribbon, footer, and accessible skip navigation.
+- [x] Build a dedicated Events page with upcoming gatherings, event detail sections, RSVP links/counts, recap gallery, and cross-links back to the homepage.
+- [x] Build a dedicated Wall page with the public note gallery, archive pagination, posting form, moderation feedback, pins, reports, and homepage entry points.
+- [x] Build a dedicated Ginagawa Ko Ngayon page with project feed, weekly tag summary, no-login update form, pagination, reporting, and homepage entry points.
+- [x] Build a dedicated About page with the four questions, newcomer starter path, Tagpuan philosophy, activities, and Join CTA.
+- [x] Build a dedicated Join page with Facebook CTA, newsletter note interaction, community expectations, venue information, and cross-links to Events and Wall.
+- [x] Build a dedicated People / Member Spotlights page with repeatable spotlight cards, carousel/detail views, captions, alt text, and event associations.
+- [x] Align all page content, labels, CTA destinations, typography, textures, cards, motion, and mobile behavior with the homepage system.
+- [x] Add route-level loading, empty, error, focus, and 404 states for the multi-page experience.
+- [x] Evaluate all routes with desktop/mobile screenshots, keyboard navigation, reduced-motion behavior, and production build/tests.
+
+## Transparent Logo Update
+
+- [x] Replace the hand-drawn hut-mark/wordmark lockups with the supplied transparent Tagpuan logo across homepage, multi-page navigation, footer, spotlight imagery where appropriate, and metadata surfaces.
+- [x] Upload the transparent logo through managed web storage and use the returned persistent asset URL.
+- [x] Verify logo sizing, object-fit behavior, alt text, contrast, and responsive rendering on dark hero and light scrapbook surfaces.
+
+## Post-logo QA
+
+- [x] Run post-logo visual QA on homepage and inner pages at both desktop and mobile widths, explicitly confirming contrast and sizing on dark hero and light scrapbook surfaces.
+- [x] Confirm no light-surface logo treatment adjustment is required in the current route set; the logo is presented on dark hero/footer surfaces.

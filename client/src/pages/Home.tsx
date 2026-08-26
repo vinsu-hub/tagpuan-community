@@ -32,36 +32,17 @@ import {
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const RSVP_URL = "https://lu.ma/";
+const TAGPUAN_LOGO_URL = "/manus-storage/tagpuanlogotransparent_92d74ba9.png";
 
 function HutMark({ size = 48 }: { size?: number }) {
   return (
-    <svg
+    <img
+      className="tagpuan-logo"
+      src={TAGPUAN_LOGO_URL}
       width={size}
-      height={size * 0.92}
-      viewBox="0 0 100 90"
-      fill="none"
-      aria-hidden="true"
-    >
-      <path
-        d="M10 48 50 8l40 40"
-        stroke="currentColor"
-        strokeWidth="5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M22 47v36M78 47v36M22 47h56M34 60h32M34 73h32M50 60v23"
-        stroke="currentColor"
-        strokeWidth="5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M50 8 34 43M50 8l-6 35M50 8l6 35M50 8l16 35M50 8l30 35"
-        stroke="currentColor"
-        strokeWidth="3"
-        strokeLinecap="round"
-      />
-    </svg>
+      height={size * 1.25}
+      alt="Tagpuan hut logo"
+    />
   );
 }
 
@@ -358,7 +339,6 @@ export default function Home() {
           <nav className="site-nav" aria-label="Primary navigation">
             <a className="brand-lockup" href="#top" aria-label="Tagpuan home">
               <HutMark size={35} />
-              <span>Tagpuan</span>
             </a>
             <button
               className="nav-toggle focus-ring"
@@ -1154,7 +1134,6 @@ export default function Home() {
             <div className="footer-brand">
               <a className="brand-lockup" href="#top">
                 <HutMark size={37} />
-                <span>Tagpuan</span>
               </a>
               <p>
                 An open collective for people building their passions — a
