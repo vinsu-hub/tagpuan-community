@@ -15,7 +15,7 @@ import { useState } from "react";
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const RSVP_URL = "https://lu.ma/";
-const TAGPUAN_LOGO_URL = "/manus-storage/tagpuanlogotransparent_92d74ba9.png";
+const TAGPUAN_LOGO_URL = "/manus-storage/LOGOONLY_7725599d.png";
 
 function HutMark({ size = 36 }: { size?: number }) {
   return (

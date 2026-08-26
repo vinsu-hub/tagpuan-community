@@ -1,0 +1,3 @@
+# Final mobile landing-page QA
+
+At 390×844, the hut-only logo is recognizable in the compact header and the typography-only Tagpuan wordmark is now the dominant hero identity. The eyebrow, wordmark, mission, taped note, and primary CTA read as one coherent sequence. The darker scrim keeps the cream display lettering and body copy legible over the concept image, while the reminder ribbon wraps cleanly and the menu button remains a clear 44px-class target. The secondary Facebook CTA continues below the first viewport, which is acceptable for the full hero flow and does not obscure the primary action.

@@ -33,15 +33,33 @@ import {
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const RSVP_URL = "https://lu.ma/";
 const TAGPUAN_LOGO_URL = "/manus-storage/tagpuanlogotransparent_92d74ba9.png";
+const TAGPUAN_TYPE_URL = "/manus-storage/TYPOGRAPHYONLY_d8733b2d.png";
+const TAGPUAN_HUT_URL = "/manus-storage/LOGOONLY_7725599d.png";
 
 function HutMark({ size = 48 }: { size?: number }) {
   return (
     <img
       className="tagpuan-logo"
-      src={TAGPUAN_LOGO_URL}
+      src={TAGPUAN_HUT_URL}
       width={size}
       height={size * 1.25}
       alt="Tagpuan hut logo"
+    />
+  );
+}
+
+function TypographyMark() {
+  return (
+    <img className="tagpuan-type-logo" src={TAGPUAN_TYPE_URL} alt="Tagpuan" />
+  );
+}
+
+function FullLockup() {
+  return (
+    <img
+      className="tagpuan-full-logo"
+      src={TAGPUAN_LOGO_URL}
+      alt="Tagpuan community"
     />
   );
 }
@@ -400,7 +418,9 @@ export default function Home() {
             <p className="section-kicker" style={{ color: "var(--ember)" }}>
               an open collective · a meeting place
             </p>
-            <h1 className="hero-wordmark">Tagpuan</h1>
+            <h1 className="hero-wordmark">
+              <TypographyMark />
+            </h1>
             <p className="hero-mission">
               An open collective for people building their passions — where
               makers, artists, engineers, researchers, writers, and everyone in
@@ -1132,8 +1152,8 @@ export default function Home() {
         <div className="section-wrap">
           <div className="footer-grid">
             <div className="footer-brand">
-              <a className="brand-lockup" href="#top">
-                <HutMark size={37} />
+              <a className="brand-lockup footer-lockup" href="#top">
+                <FullLockup />
               </a>
               <p>
                 An open collective for people building their passions — a

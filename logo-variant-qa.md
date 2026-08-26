@@ -1,0 +1,3 @@
+# Logo Variant QA
+
+The hut-only variant now serves compact utility placements: desktop/mobile header mark, event ribbon, footer, and map-related contexts. The typography-only variant now replaces the large hero wordmark, making the hero feel more authentic to the supplied identity and removing the previous generic display-font dependency. Desktop and mobile captures show the hut mark is recognizable without the large transparent canvas feeling lost, while the typography-only wordmark remains legible against the dark brown scrim. The hero hierarchy is now clearer: utility hut mark, eyebrow, tactile Tagpuan wordmark, mission, note, and CTA.

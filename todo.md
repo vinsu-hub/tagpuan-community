@@ -101,3 +101,33 @@
 
 - [x] Run post-logo visual QA on homepage and inner pages at both desktop and mobile widths, explicitly confirming contrast and sizing on dark hero and light scrapbook surfaces.
 - [x] Confirm no light-surface logo treatment adjustment is required in the current route set; the logo is presented on dark hero/footer surfaces.
+
+## Landing Page Visual Audit
+
+- [x] Improve utility-logo sizing and cropping so the supplied transparent logo reads as a recognizable mark in the desktop header, mobile header, ribbon, hero, and footer.
+- [x] Remove ambiguous duplicate branding between the transparent logo mark, large Tagpuan heading, and background concept lettering while preserving the intended hierarchy.
+- [x] Improve hero text readability by reducing background competition, strengthening scrim/contrast, and keeping display type legible at desktop and mobile sizes.
+- [x] Refine header and event-ribbon spacing so navigation, logo, reminder copy, and close control have clearer hierarchy and touch targets.
+- [x] Rebalance hero vertical rhythm so the hero logo, eyebrow, title, description, note, and CTAs feel intentionally grouped rather than vertically loose.
+- [x] Preserve scrapbook character while making CTA hierarchy, focus states, and small utility text more readable.
+- [x] Re-run desktop/mobile visual QA, typecheck, tests, formatting, and production build after the landing-page refinements.
+
+## Logo Variant Update
+
+- [x] Upload the supplied typography-only and hut-only Tagpuan logo variants through managed web storage.
+- [x] Use the hut-only variant for compact header, ribbon, map-pin, and utility placements.
+- [x] Use the typography-only variant for the hero wordmark and text-led brand moments.
+- [x] Use the full transparent lockup only where the combined hut-and-wordmark composition has enough space.
+- [x] Verify all logo variants for cropping, readability, contrast, and responsive sizing across homepage and inner-page routes.
+
+## Logo Variant Evidence Follow-up
+
+- [x] Place the full transparent lockup in an intentional spacious brand context or explicitly document that v1 uses hut-only and typography-only variants only.
+- [x] Run post-variant visual QA on representative inner pages at desktop and mobile widths after the variant swap.
+
+- [x] Capture and document a dedicated mobile landing-page screenshot review after the final visual refinement state.
+
+## Header and Ribbon QA Follow-up
+
+- [x] Add explicit header, mobile-menu, event-ribbon, and dismiss-button spacing/touch-target improvements.
+- [x] Re-check the header and reminder ribbon at desktop and mobile widths after the spacing changes.

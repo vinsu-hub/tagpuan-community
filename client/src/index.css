@@ -332,12 +332,12 @@ select:focus-visible {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.32;
+  opacity: 0.19;
   background-image:
     linear-gradient(rgba(43, 27, 18, 0.22), rgba(43, 27, 18, 0.72)),
     url("/manus-storage/tagpuan-concept-reference_9eee853e.png");
   background-size: cover;
-  background-position: center 42%;
+  background-position: center 34%;
   mix-blend-mode: soft-light;
 }
 .hero-surface::after {
@@ -346,9 +346,9 @@ select:focus-visible {
   inset: 0;
   background: linear-gradient(
     180deg,
-    rgba(18, 10, 6, 0.65) 0%,
-    rgba(43, 27, 18, 0.16) 44%,
-    rgba(43, 27, 18, 0.91) 100%
+    rgba(18, 10, 6, 0.78) 0%,
+    rgba(43, 27, 18, 0.28) 44%,
+    rgba(43, 27, 18, 0.94) 100%
   );
   pointer-events: none;
 }
@@ -366,23 +366,23 @@ select:focus-visible {
 }
 .hero-wordmark {
   margin: 0;
+  min-height: 110px;
   color: var(--warm-white);
-  font:
-    600 clamp(4rem, 15vw, 10.5rem) / 0.78 "Fredoka",
-    sans-serif;
+  line-height: 1;
   letter-spacing: -0.08em;
 }
 .hero-mission {
   max-width: 700px;
-  margin: 28px auto 0;
-  color: rgba(250, 246, 236, 0.86);
+  margin: 23px auto 0;
+  color: rgba(250, 246, 236, 0.94);
+  text-shadow: 0 1px 14px rgba(18, 10, 6, 0.28);
   font-size: clamp(1.08rem, 2vw, 1.35rem);
   line-height: 1.5;
 }
 .hero-note {
   position: relative;
   width: min(465px, 86vw);
-  margin: 38px auto 0;
+  margin: 30px auto 0;
   padding: 30px 32px 28px;
   color: var(--espresso);
   background: var(--paper);
@@ -436,15 +436,15 @@ select:focus-visible {
   flex-wrap: wrap;
   justify-content: center;
   gap: 12px;
-  margin-top: 30px;
+  margin-top: 24px;
 }
 .scroll-cue {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 9px;
-  margin-top: 46px;
-  color: rgba(250, 246, 236, 0.58);
+  margin-top: 34px;
+  color: rgba(250, 246, 236, 0.72);
   font:
     500 0.65rem "DM Mono",
     monospace;
@@ -474,6 +474,27 @@ select:focus-visible {
   margin: 0 auto;
   padding: 24px 0 18px;
 }
+.tagpuan-full-logo {
+  display: block;
+  width: 185px;
+  height: 78px;
+  object-fit: contain;
+  object-position: center;
+  mix-blend-mode: screen;
+  filter: saturate(0.78) contrast(1.08);
+}
+.footer-lockup {
+  width: 210px;
+  min-height: 78px;
+}
+.tagpuan-type-logo {
+  display: block;
+  width: min(560px, 78vw);
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  filter: brightness(1.06) contrast(1.05);
+}
 .tagpuan-logo {
   display: block;
   object-fit: contain;
@@ -487,9 +508,10 @@ select:focus-visible {
   flex: 0 0 35px;
 }
 .hero-logo .tagpuan-logo {
-  width: 92px;
-  height: 115px;
-  margin: -15px auto -28px;
+  width: 112px;
+  height: 140px;
+  margin: -22px auto -36px;
+  transform: scale(1.18);
 }
 .event-ribbon .tagpuan-logo,
 .map-pin .tagpuan-logo {
@@ -1111,7 +1133,7 @@ select:focus-visible {
   content: "";
   position: absolute;
   inset: 0;
-  opacity: 0.32;
+  opacity: 0.19;
   background:
     radial-gradient(
       circle at 15% 10%,
@@ -1655,7 +1677,28 @@ select:focus-visible {
 .footer-brand {
   color: var(--warm-white);
 }
-.footer-brand .tagpuan-logo {
+.footer-brand .tagpuan-full-logo {
+  display: block;
+  width: 185px;
+  height: 78px;
+  object-fit: contain;
+  object-position: center;
+  mix-blend-mode: screen;
+  filter: saturate(0.78) contrast(1.08);
+}
+.footer-lockup {
+  width: 210px;
+  min-height: 78px;
+}
+.tagpuan-type-logo {
+  display: block;
+  width: min(560px, 78vw);
+  height: auto;
+  margin: 0 auto;
+  object-fit: contain;
+  filter: brightness(1.06) contrast(1.05);
+}
+.tagpuan-logo {
   display: block;
   object-fit: contain;
   object-position: center;
@@ -1668,9 +1711,10 @@ select:focus-visible {
   flex: 0 0 35px;
 }
 .hero-logo .tagpuan-logo {
-  width: 92px;
-  height: 115px;
-  margin: -15px auto -28px;
+  width: 112px;
+  height: 140px;
+  margin: -22px auto -36px;
+  transform: scale(1.18);
 }
 .event-ribbon .tagpuan-logo,
 .map-pin .tagpuan-logo {
@@ -2030,5 +2074,46 @@ select:focus-visible {
   .wall-note:hover,
   .recap-photo:hover {
     transform: none;
+  }
+}
+
+/* Landing-page audit: explicit navigation and reminder touch targets */
+.site-nav {
+  min-height: 72px;
+}
+.site-nav .brand-lockup {
+  min-width: 56px;
+  min-height: 44px;
+}
+.event-ribbon {
+  min-height: 48px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.ribbon-dismiss {
+  width: 44px;
+  height: 44px;
+  right: 8px;
+}
+.nav-toggle {
+  width: 44px;
+  height: 44px;
+}
+@media (max-width: 760px) {
+  .site-nav {
+    width: calc(100% - 28px);
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+  .event-ribbon {
+    justify-content: flex-start;
+    gap: 7px;
+    padding-left: 14px;
+    padding-right: 54px;
+    font-size: 0.62rem;
+    line-height: 1.35;
+  }
+  .event-ribbon .tagpuan-logo {
+    flex: 0 0 20px;
   }
 }
