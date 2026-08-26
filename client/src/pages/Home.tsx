@@ -144,11 +144,27 @@ const events = [
 ];
 
 const recapPhotos = [
-  { label: "hands at work", rotation: "-3deg" },
-  { label: "the long table", rotation: "2deg" },
-  { label: "new friends", rotation: "-1deg" },
-  { label: "open mic", rotation: "3deg" },
-  { label: "one more song", rotation: "-2deg" },
+  {
+    label: "Malaya's Den work session poster — August 8, 2026",
+    rotation: "-3deg",
+    imageUrl: "/manus-storage/tagpuan-recap-1_f0518c75.png",
+  },
+  {
+    label: "Run, coffee, and chill work-session poster — August 2, 2026",
+    rotation: "2deg",
+    imageUrl: "/manus-storage/tagpuan-recap-2_223f67b4.png",
+  },
+  {
+    label: "Work session poster at The Den by Danielitos — July 25, 2026",
+    rotation: "-1deg",
+    imageUrl: "/manus-storage/tagpuan-recap-3_4219b44b.png",
+  },
+  {
+    label:
+      "Tagpuan work session poster at The Den by Danielitos — July 11, 2026",
+    rotation: "3deg",
+    imageUrl: "/manus-storage/tagpuan-recap-4_8a1d4373.png",
+  },
 ];
 
 const prompts = [
@@ -349,7 +365,7 @@ export default function Home() {
         rotation: "0deg",
         imageUrl: photo.imageUrl,
       }))
-    : recapPhotos.map(photo => ({ ...photo, imageUrl: undefined }));
+    : recapPhotos;
 
   function dismissRibbon() {
     setRibbonVisible(false);
@@ -789,8 +805,8 @@ export default function Home() {
                 ))}
               </div>
               <p className="recap-caption">
-                The Social Room, Aug 29 — full house, plenty of unfinished
-                ideas.
+                A few pages from recent Tagpuan work sessions — bring the thing
+                you are making, and stay for the people you meet.
               </p>
             </div>
             <p className="events-signoff">

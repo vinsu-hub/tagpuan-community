@@ -172,3 +172,11 @@
 
 - [x] Replace every remaining “Sunday Sessions” label under What’s Going On with “Saturday Night Session,” including the event card, event reminder, dedicated event page, and event-details dialog.
 - [x] Verify the fixed title remains paired with “AUG 29 · SATURDAY” across desktop and mobile views.
+
+## Supplied Recap Images
+
+- [x] Upload the four unique supplied event images to managed web storage and keep them outside the project bundle.
+- [x] Replace the “Last time at Tagpuan” placeholder recap tiles with the uploaded images in the supplied sequence.
+- [x] Add meaningful recap captions and alt text based on each image’s event poster or gathering context.
+- [x] Preserve the existing scrapbook rotation, photo-frame treatment, lazy loading, and recap lightbox behavior.
+- [x] Verify desktop/mobile cropping, image loading, lightbox labels, and build health after the recap update.
