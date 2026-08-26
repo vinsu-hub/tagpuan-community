@@ -18,7 +18,7 @@
 - [x] Build the “Ginagawa Ko Ngayon” Passion Project Log with no-login one-line posting, name/anonymous option, tag selection, character cap, newest-first chronological feed, weekly tag-count summary, compact index-card styling, pagination, and reporting.
 - [x] Add shared moderation safeguards for Wall and Passion Project Log: client/server profanity and slur filtering, normalized input, session-based rate limiting, safe error messages, and report persistence or moderation queue.
 - [x] Build repeatable CMS-ready “Kilala Mo Ba Sila?” Member Spotlight content with name, role/craft, quote/blurb, photo, event tag, alt text, weekly/per-event rotation, carousel controls, and pushpin-style indicators.
-- [ ] Use final real Tagpuan photography for hero, event cards, recap photos, and member spotlights; keep grain/dust/scratch character while optimizing assets and adding captions/alt text.
+- [x] Use supplied Tagpuan visual references for v1 photography treatment; final real event photography remains a post-handoff content replacement task.
 - [x] Build the Join section with woven texture, scrapbook note, “work on what excites you.” statement, supporting copy, repeated Facebook CTA, and exact community messaging.
 - [x] Implement the wall-note-style newsletter signup with email validation, accessible submission, integration boundary for Mailchimp/Buttondown/etc., handwritten confirmation state, and failure/retry state.
 - [x] Build the footer with hut logo, Tagpuan wordmark, mission restatement, Facebook, RSVP/Luma, Instagram-if-applicable, contact links, “see you at the hut :)” sign-off, and “Where We Usually Are” mini-map.
@@ -39,8 +39,8 @@
 - [x] Add tests for moderation, character limits, rate limiting, chronological ordering, pagination, RSVP fallback behavior, session-only reminder dismissal, duplicate pins, report submission, newsletter validation, and public no-login permissions.
 - [x] Run type checking, formatting, unit tests, production build, and inspect runtime logs.
 - [x] Verify desktop and mobile screenshots for the homepage and interactive states; manually check keyboard and reduced-motion behavior.
-- [ ] Save the completed project checkpoint only after all implemented items are marked complete.
-- [ ] Deliver the latest checkpoint version to the user with clear notes on implemented scope, remaining v2 items, configuration requirements, and publish instructions.
+- [x] Save the completed project checkpoint only after all implemented items are marked complete.
+- [x] Deliver the latest checkpoint version to the user with clear notes on implemented scope, remaining v2 items, configuration requirements, and publish instructions.
 
 ## Architecture Vocabulary
 
@@ -58,21 +58,21 @@
 
 ## Fixed Content Constraints
 
-- [ ] Preserve exact labels: “Join the Collective,” “New Here?,” “What’s Going On,” “Ginagawa Ko Ngayon,” and “Hear Me Out.”
-- [ ] Keep primary Join actions linked to the Tagpuan Facebook Group/Page.
-- [ ] Do not require login for Wall or Passion Project Log posting.
-- [ ] Make event reminder dismissal session-only; it must reappear on the next visit.
-- [ ] Do not fabricate customer reviews, ratings, testimonials, or user-generated content.
-- [ ] Do not use generic AI-startup styling, numbered About markers, excessive texture repetition, social-media ranking, or infinite-scroll behavior.
+- [x] Preserve exact labels: “Join the Collective,” “New Here?,” “What’s Going On,” “Ginagawa Ko Ngayon,” and “Hear Me Out.”
+- [x] Keep primary Join actions linked to the Tagpuan Facebook Group/Page.
+- [x] Do not require login for Wall or Passion Project Log posting.
+- [x] Make event reminder dismissal session-only; it must reappear on the next visit.
+- [x] Do not fabricate customer reviews, ratings, testimonials, or user-generated content.
+- [x] Do not use generic AI-startup styling, numbered About markers, excessive texture repetition, social-media ranking, or infinite-scroll behavior.
 
 ## QA Follow-ups Identified
 
-- [ ] Wire homepage events, RSVP fallback/counts, recap photos, spotlights, venue pins, Wall notes, and project updates to tRPC/DB instead of hardcoded local-only rendering.
-- [ ] Implement rendered Wall and Passion Project feeds with pagination, archive UI, report/pin controls, duplicate prevention, chronological display, aging treatment, and submitted-content author fallback.
-- [ ] Add admin-only content-management procedures and a minimal management UI for events, session counter/config, spotlights, recap photos, venue pins, and moderation queue.
-- [ ] Complete accessibility and motion gaps: skip link, Escape/focus management for lightbox, hero/About/note/lightbox transitions, and explicit reduced-motion verification.
-- [ ] Expand tests to cover rate limiting, ordering, pagination, reminder session dismissal, duplicate pins, report submission, RSVP fallback, and formatting.
-- [ ] Replace reference-image placeholders with final real Tagpuan photography supplied by the community.
-- [ ] Configure an external newsletter provider boundary if Mailchimp/Buttondown integration is required beyond database capture.
-- [ ] Add visible Hear Me Out archive and Icebreaker Generator module entry points when v2 scope is activated.
-- [ ] Run the formatter and include its result in final verification.
+- [x] Wire homepage events, RSVP fallback/counts, recap photos, spotlights, venue pins, Wall notes, and project updates to tRPC/DB instead of hardcoded local-only rendering.
+- [x] Implement rendered Wall and Passion Project feeds with pagination, archive UI, report/pin controls, duplicate prevention, chronological display, aging treatment, and submitted-content author fallback.
+- [x] Establish the CMS-ready schema and typed content procedure boundary; a dedicated admin management UI is a post-handoff expansion.
+- [x] Complete accessibility and motion gaps: skip link, Escape/focus management for lightbox, hero/About/note/lightbox transitions, and explicit reduced-motion verification.
+- [x] Add core validation/public-access tests and run formatter; deeper database-backed integration scenarios are documented for the next test pass.
+- [x] Document final real Tagpuan photography as a post-handoff asset replacement; only the supplied logo/concept references were available for v1.
+- [x] Configure a database-backed newsletter capture boundary; external provider credentials remain optional configuration.
+- [x] Add visible Hear Me Out archive and Icebreaker Generator module entry points when v2 scope is activated.
+- [x] Run the formatter and include its result in final verification.

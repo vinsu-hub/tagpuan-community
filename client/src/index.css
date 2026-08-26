@@ -1186,6 +1186,28 @@ select:focus-visible {
 .wall-note.prompt p {
   color: rgba(43, 27, 18, 0.62);
 }
+.wall-note.aged {
+  filter: saturate(0.84);
+  clip-path: polygon(
+    0 2%,
+    18% 0,
+    35% 3%,
+    53% 0,
+    72% 2%,
+    100% 0,
+    98% 24%,
+    100% 48%,
+    97% 73%,
+    100% 100%,
+    76% 98%,
+    54% 100%,
+    31% 97%,
+    0 100%,
+    2% 73%,
+    0 46%,
+    2% 22%
+  );
+}
 .wall-note.prompt::after {
   content: "";
   position: absolute;

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { trpc } from "@/lib/trpc";
 import {
   ArrowDown,
@@ -182,6 +182,11 @@ export default function Home() {
     "idle" | "success" | "error"
   >("idle");
   const [wallPage, setWallPage] = useState(1);
+  const [icebreaker, setIcebreaker] = useState(
+    "What are you making time for this week?"
+  );
+  const lightboxCloseRef = useRef<HTMLButtonElement>(null);
+  const lightboxTriggerRef = useRef<HTMLButtonElement>(null);
   const [wallArchive, setWallArchive] = useState(false);
   const [projectPage, setProjectPage] = useState(1);
   const [pinnedNoteIds, setPinnedNoteIds] = useState<number[]>([]);
@@ -195,6 +200,7 @@ export default function Home() {
     trpc.projects.list.useQuery({ page: projectPage, pageSize: 10 });
   const { data: cmsSpotlights } = trpc.content.spotlights.useQuery();
   const { data: cmsRecapPhotos } = trpc.content.recapPhotos.useQuery();
+  const { data: cmsVenuePins } = trpc.content.venuePins.useQuery();
   const wallPinMutation = trpc.wall.pin.useMutation();
   const wallReportMutation = trpc.wall.report.useMutation();
   const projectReportMutation = trpc.projects.report.useMutation();
@@ -244,7 +250,11 @@ export default function Home() {
         );
     };
     window.addEventListener("keydown", onKeyDown);
-    return () => window.removeEventListener("keydown", onKeyDown);
+    lightboxCloseRef.current?.focus();
+    return () => {
+      window.removeEventListener("keydown", onKeyDown);
+      lightboxTriggerRef.current?.focus();
+    };
   }, [lightboxIndex]);
 
   const displayedEvents = cmsEvents?.length
@@ -680,7 +690,10 @@ export default function Home() {
                           : {}),
                       } as React.CSSProperties
                     }
-                    onClick={() => setLightboxIndex(index)}
+                    onClick={event => {
+                      lightboxTriggerRef.current = event.currentTarget;
+                      setLightboxIndex(index);
+                    }}
                     aria-label={`Open recap photo: ${photo.label}`}
                   >
                     <span className="sr-only">{photo.label}</span>
@@ -719,7 +732,7 @@ export default function Home() {
                 )}
                 {wallData?.items.map(note => (
                   <article
-                    className={`wall-note ${note.tone}`}
+                    className={`wall-note ${note.tone} ${Date.now() - note.createdAt > 7 * 86_400_000 ? "aged" : ""}`}
                     style={
                       {
                         "--rotation": `${(note.id % 7) - 3}deg`,
@@ -1218,6 +1231,7 @@ export default function Home() {
             onClick={event => event.stopPropagation()}
           >
             <button
+              ref={lightboxCloseRef}
               className="pushpin lightbox-close focus-ring"
               type="button"
               onClick={() => setLightboxIndex(null)}
