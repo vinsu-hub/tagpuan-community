@@ -191,7 +191,7 @@ function PageFrame({
   );
 }
 
-const eventItems = ["Sunday Sessions", "Open Table", "Night Shift"];
+const eventItems = ["Saturday Night Session", "Open Table", "Night Shift"];
 
 export function EventsPage() {
   return (
@@ -517,7 +517,7 @@ export function PeoplePage() {
                 getting better at asking people what they are excited about.”
               </p>
               <p className="spotlight-event">
-                FEATURED AT: SUNDAY SESSIONS · AUG 29
+                FEATURED AT: SATURDAY NIGHT SESSION · AUG 29
               </p>
               <a className="pill pill-primary" href="/events">
                 Meet the next people <ArrowRight size={15} />

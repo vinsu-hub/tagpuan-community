@@ -167,3 +167,8 @@
 - [x] Include event title, date, time, venue, description/context, activities, RSVP count/state, RSVP CTA, and close control in the modal.
 - [x] Add keyboard Escape handling, focus management, backdrop close behavior, accessible dialog labels, and mobile responsive modal layout.
 - [x] Verify event section contrast, Saturday copy, modal content, and desktop/mobile interaction states, then run typecheck, tests, formatting, and production build.
+
+## Saturday Session Copy Correction
+
+- [x] Replace every remaining “Sunday Sessions” label under What’s Going On with “Saturday Night Session,” including the event card, event reminder, dedicated event page, and event-details dialog.
+- [x] Verify the fixed title remains paired with “AUG 29 · SATURDAY” across desktop and mobile views.
