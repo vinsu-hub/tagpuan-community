@@ -2514,3 +2514,21 @@ select:focus-visible {
     transition: none;
   }
 }
+
+/* Keep the hover state inside the recap strip's overflow window. */
+.recap-strip {
+  padding-top: 8px;
+  padding-bottom: 18px;
+}
+
+.recap-photo:hover,
+.recap-photo:focus-visible {
+  translate: 0 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recap-photo:hover,
+  .recap-photo:focus-visible {
+    translate: 0 0;
+  }
+}

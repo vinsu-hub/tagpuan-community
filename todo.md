@@ -231,3 +231,10 @@
 - [x] Keep hover animation separate from the scroll entrance so both behaviors work together without resetting the card’s scrapbook rotation.
 - [x] Disable non-essential hover motion under prefers-reduced-motion while preserving pointer and keyboard usability.
 - [x] Verify recap hover and scroll behavior, then run typecheck, tests, formatting, and production build.
+
+## Recap Hover Clipping Fix
+
+- [x] Move the hovered Last time at Tagpuan poster slightly downward so its visual treatment is not cut off by the strip boundary.
+- [x] Add sufficient top and bottom breathing room to the recap strip while preserving horizontal scrolling and card alignment.
+- [x] Keep hover/focus-visible lift, scrapbook rotation, and reduced-motion behavior intact.
+- [x] Verify the poster hover visibility and responsive recap layout, then run typecheck, tests, formatting, and production build.
