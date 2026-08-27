@@ -233,6 +233,9 @@ export default function Home() {
   const [projectTag, setProjectTag] = useState("Tech");
   const [projectMessage, setProjectMessage] = useState("");
   const [spotlightIndex, setSpotlightIndex] = useState(0);
+  const [spotlightDirection, setSpotlightDirection] = useState<
+    "next" | "previous"
+  >("next");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
   const [email, setEmail] = useState("");
@@ -376,6 +379,11 @@ export default function Home() {
         imageUrl: photo.imageUrl,
       }))
     : recapPhotos;
+
+  function navigateSpotlight(index: number, direction: "next" | "previous") {
+    setSpotlightDirection(direction);
+    setSpotlightIndex(index);
+  }
 
   function dismissRibbon() {
     setRibbonVisible(false);
@@ -1141,7 +1149,10 @@ export default function Home() {
           <div className="section-wrap">
             <p className="section-kicker">people make the place</p>
             <h2 className="section-title">Kilala Mo Ba Sila?</h2>
-            <div className="spotlight-card">
+            <div
+              key={`${currentSpotlight.name}-${spotlightIndex}`}
+              className={`spotlight-card spotlight-card--${spotlightDirection}`}
+            >
               <div
                 className="spotlight-photo"
                 role="img"
@@ -1164,10 +1175,10 @@ export default function Home() {
                     className="pushpin focus-ring"
                     type="button"
                     onClick={() =>
-                      setSpotlightIndex(
-                        index =>
-                          (index - 1 + spotlightItems.length) %
-                          spotlightItems.length
+                      navigateSpotlight(
+                        (spotlightIndex - 1 + spotlightItems.length) %
+                          spotlightItems.length,
+                        "previous"
                       )
                     }
                     aria-label="Previous member spotlight"
@@ -1179,7 +1190,12 @@ export default function Home() {
                       className={`dot ${index === spotlightIndex % spotlightItems.length ? "active" : ""}`}
                       type="button"
                       key={item.name || index}
-                      onClick={() => setSpotlightIndex(index)}
+                      onClick={() =>
+                        navigateSpotlight(
+                          index,
+                          index > spotlightIndex ? "next" : "previous"
+                        )
+                      }
                       aria-label={`Show spotlight ${index + 1}`}
                       aria-current={
                         index === spotlightIndex % spotlightItems.length
@@ -1192,8 +1208,9 @@ export default function Home() {
                     className="pushpin focus-ring"
                     type="button"
                     onClick={() =>
-                      setSpotlightIndex(
-                        index => (index + 1) % spotlightItems.length
+                      navigateSpotlight(
+                        (spotlightIndex + 1) % spotlightItems.length,
+                        "next"
                       )
                     }
                     aria-label="Next member spotlight"

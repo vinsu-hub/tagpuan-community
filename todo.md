@@ -238,3 +238,10 @@
 - [x] Add sufficient top and bottom breathing room to the recap strip while preserving horizontal scrolling and card alignment.
 - [x] Keep hover/focus-visible lift, scrapbook rotation, and reduced-motion behavior intact.
 - [x] Verify the poster hover visibility and responsive recap layout, then run typecheck, tests, formatting, and production build.
+
+## Kilala Mo Ba Sila Directional Slide Animation
+
+- [x] Add a right-to-left slide transition when advancing to the next Kilala Mo Ba Sila profile.
+- [x] Add a left-to-right slide transition when returning to the previous profile.
+- [x] Preserve carousel wraparound, keyboard controls, focus-visible styling, and reduced-motion behavior.
+- [x] Verify both navigation directions on desktop and mobile, then run typecheck, tests, formatting, and production build.
