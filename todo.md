@@ -204,3 +204,16 @@
 - [x] Confirm the hero uses the typography-only transparent wordmark, compact utility placements use the hut-only transparent mark, and the footer uses the full lockup without an opaque box.
 - [x] Verify header, reminder ribbon, hero, footer, and mobile-menu logo rendering at desktop and mobile widths.
 - [x] Run typecheck, tests, formatting, production build, and a final local asset-path check before checkpointing.
+
+## Landing Page Element Motion Expansion
+
+- [x] Animate individual About question cards with subtle staggered reveals.
+- [x] Animate New Here? starter steps and the supporting scrapbook note as they enter view.
+- [x] Animate What’s Going On event cards and activity callouts with varied, restrained settle timing.
+- [x] Animate Last time at Tagpuan recap posters with photo-frame lift/reveal behavior.
+- [x] Animate Wall notes and the Pin a note / Post a note controls without making interaction feel noisy.
+- [x] Animate Ginagawa Mo Ngayon summary and project-log entry controls.
+- [x] Animate Kilala Mo Ba Sila? spotlight image, copy, and controls as a coordinated group.
+- [x] Animate Join note, newsletter form, venue map, and footer columns.
+- [x] Add stagger limits, viewport-safe performance behavior, and a complete prefers-reduced-motion fallback.
+- [x] Verify the expanded landing-page animations on desktop and mobile, then run typecheck, tests, formatting, and production build.
