@@ -245,3 +245,12 @@
 - [x] Add a left-to-right slide transition when returning to the previous profile.
 - [x] Preserve carousel wraparound, keyboard controls, focus-visible styling, and reduced-motion behavior.
 - [x] Verify both navigation directions on desktop and mobile, then run typecheck, tests, formatting, and production build.
+
+## On-site Event Registration Form
+
+- [x] Replace the event’s Luma registration hyperlink with an in-site Register action.
+- [x] Add a responsive accessible registration form matching the supplied reference fields and Tagpuan styling.
+- [x] Validate required name, email, background, current interests, top interests, and referral fields, with optional hot take and night suggestion.
+- [x] Persist public registrations with event association, consent, session metadata, and duplicate-registration safeguards.
+- [x] Add a submitted confirmation state and clear error/rate-limit feedback without requiring login.
+- [x] Verify the registration flow on desktop and mobile, then run typecheck, tests, formatting, and production build.

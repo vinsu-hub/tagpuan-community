@@ -15,7 +15,6 @@ import { useEffect, useState } from "react";
 import { useLocation } from "wouter";
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
-const RSVP_URL = "https://lu.ma/";
 const TAGPUAN_LOGO_URL = "/assets/tagpuan/tagpuan-hut.webp";
 
 function useScrollReveal() {
@@ -194,6 +193,7 @@ function PageFrame({
 const eventItems = ["Saturday Night Session", "Open Table", "Night Shift"];
 
 export function EventsPage() {
+  const [, setLocation] = useLocation();
   return (
     <PageFrame
       eyebrow="gather in real life"
@@ -245,14 +245,13 @@ export function EventsPage() {
                     </span>
                   </div>
                   <div className="event-footer">
-                    <a
+                    <button
                       className="event-link"
-                      href={RSVP_URL}
-                      target="_blank"
-                      rel="noreferrer"
+                      type="button"
+                      onClick={() => setLocation("/?register=sunday-sessions")}
                     >
-                      RSVP for this one <ArrowRight size={13} />
-                    </a>
+                      Register on Tagpuan <ArrowRight size={13} />
+                    </button>
                     <span className="rsvp-badge">
                       {index ? `${index + 2} are going` : "+11 others going"}
                     </span>

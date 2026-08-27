@@ -2,7 +2,9 @@ import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import {
   events,
+  eventRegistrations,
   InsertEvent,
+  InsertEventRegistration,
   InsertNewsletterSubscriber,
   InsertProjectUpdate,
   InsertUser,
@@ -270,6 +272,60 @@ export async function listVenuePins() {
     .from(venuePins)
     .where(eq(venuePins.isPublished, 1))
     .orderBy(asc(venuePins.sortOrder));
+}
+
+export async function incrementEventAttendeeCount(eventId: number) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(events)
+    .set({
+      attendeeCount: sql`${events.attendeeCount} + 1`,
+      updatedAt: Date.now(),
+    })
+    .where(eq(events.id, eventId));
+}
+
+export async function findEventRegistration(eventSlug: string, email: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db
+    .select({ id: eventRegistrations.id })
+    .from(eventRegistrations)
+    .where(
+      and(
+        eq(eventRegistrations.eventSlug, eventSlug),
+        eq(eventRegistrations.email, email),
+        eq(eventRegistrations.status, "confirmed")
+      )
+    )
+    .limit(1);
+  return result[0];
+}
+
+export async function countRecentEventRegistrations(sessionHash: string) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(eventRegistrations)
+    .where(
+      and(
+        eq(eventRegistrations.sessionHash, sessionHash),
+        gt(eventRegistrations.createdAt, Date.now() - 60 * 60 * 1000),
+        eq(eventRegistrations.status, "confirmed")
+      )
+    );
+  return Number(result[0]?.total ?? 0);
+}
+
+export async function insertEventRegistration(
+  registration: InsertEventRegistration
+) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.insert(eventRegistrations).values(registration);
+  return result[0]?.insertId;
 }
 
 export async function subscribeNewsletter(

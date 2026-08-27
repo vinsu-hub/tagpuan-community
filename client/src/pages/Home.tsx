@@ -31,7 +31,6 @@ import {
 } from "lucide-react";
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
-const RSVP_URL = "https://lu.ma/";
 const TAGPUAN_LOGO_URL = "/assets/tagpuan/tagpuan-lockup.webp";
 const TAGPUAN_TYPE_URL = "/assets/tagpuan/tagpuan-type.webp";
 const TAGPUAN_HUT_URL = "/assets/tagpuan/tagpuan-hut.webp";
@@ -212,6 +211,15 @@ const aboutItems = [
   },
 ];
 
+const topInterestOptions = [
+  "Art & Design",
+  "Technology",
+  "Writing & Storytelling",
+  "Music & Performance",
+  "Research & Learning",
+  "Community & Startups",
+];
+
 const projectTags = [
   { label: "14 in Tech", className: "" },
   { label: "6 in Art", className: "" },
@@ -238,6 +246,20 @@ export default function Home() {
   >("next");
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
   const [selectedEventId, setSelectedEventId] = useState<string | null>(null);
+  const [registrationOpen, setRegistrationOpen] = useState(false);
+  const [registrationSubmitted, setRegistrationSubmitted] = useState(false);
+  const [registrationMessage, setRegistrationMessage] = useState("");
+  const [registration, setRegistration] = useState({
+    name: "",
+    email: "",
+    background: "",
+    currentInterests: "",
+    topInterests: [] as string[],
+    heardFrom: "",
+    hotTake: "",
+    nightSuggestion: "",
+    photoConsent: false,
+  });
   const [email, setEmail] = useState("");
   const [newsletterState, setNewsletterState] = useState<
     "idle" | "success" | "error"
@@ -287,6 +309,13 @@ export default function Home() {
     onSuccess: () => setNewsletterState("success"),
     onError: () => setNewsletterState("error"),
   });
+  const registrationMutation = trpc.registrations.create.useMutation({
+    onSuccess: result => {
+      setRegistrationSubmitted(true);
+      setRegistrationMessage(result.message);
+    },
+    onError: error => setRegistrationMessage(error.message),
+  });
 
   useEffect(() => {
     try {
@@ -323,6 +352,7 @@ export default function Home() {
   const displayedEvents = cmsEvents?.length
     ? cmsEvents.map((event, index) => ({
         id: event.slug,
+        eventId: event.id,
         date: event.dateLabel,
         title:
           event.slug === "sunday-sessions"
@@ -352,6 +382,25 @@ export default function Home() {
     : events;
   const selectedEvent =
     displayedEvents.find(event => event.id === selectedEventId) ?? null;
+  const selectedCmsEventId =
+    selectedEvent &&
+    "eventId" in selectedEvent &&
+    typeof selectedEvent.eventId === "number"
+      ? selectedEvent.eventId
+      : null;
+  useEffect(() => {
+    const registerSlug = new URLSearchParams(window.location.search).get(
+      "register"
+    );
+    if (!registerSlug) return;
+    const eventToRegister = displayedEvents.find(
+      event => event.id === registerSlug
+    );
+    if (!eventToRegister) return;
+    setSelectedEventId(eventToRegister.id);
+    setRegistrationOpen(true);
+    window.history.replaceState({}, "", "/#events");
+  }, [displayedEvents]);
   useEffect(() => {
     if (!selectedEvent) return;
     const onKeyDown = (event: KeyboardEvent) => {
@@ -383,6 +432,53 @@ export default function Home() {
   function navigateSpotlight(index: number, direction: "next" | "previous") {
     setSpotlightDirection(direction);
     setSpotlightIndex(index);
+  }
+
+  function openRegistration() {
+    setRegistrationOpen(true);
+    setRegistrationSubmitted(false);
+    setRegistrationMessage("");
+  }
+
+  function closeEventModal() {
+    setSelectedEventId(null);
+    setRegistrationOpen(false);
+    setRegistrationSubmitted(false);
+    setRegistrationMessage("");
+  }
+
+  function toggleTopInterest(interest: string) {
+    setRegistration(current => ({
+      ...current,
+      topInterests: current.topInterests.includes(interest)
+        ? current.topInterests.filter(item => item !== interest)
+        : current.topInterests.length < 3
+          ? [...current.topInterests, interest]
+          : current.topInterests,
+    }));
+  }
+
+  function submitRegistration(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    setRegistrationMessage("");
+    if (!selectedEvent || !registration.photoConsent) {
+      setRegistrationMessage(
+        "Please confirm the photo and video consent to register."
+      );
+      return;
+    }
+    if (registration.topInterests.length === 0) {
+      setRegistrationMessage(
+        "Choose at least one interest so we know what brings you here."
+      );
+      return;
+    }
+    registrationMutation.mutate({
+      eventSlug: selectedEvent.id,
+      eventId: selectedCmsEventId,
+      ...registration,
+      photoConsent: true,
+    });
   }
 
   function dismissRibbon() {
@@ -725,22 +821,26 @@ export default function Home() {
                         </span>
                       </div>
                       <div className="event-footer">
-                        <a
+                        <button
                           className="event-link"
-                          href={RSVP_URL}
-                          target="_blank"
-                          rel="noreferrer"
-                          onClick={clickEvent => clickEvent.stopPropagation()}
+                          type="button"
+                          onClick={clickEvent => {
+                            clickEvent.stopPropagation();
+                            setSelectedEventId(event.id);
+                            openRegistration();
+                          }}
                         >
-                          RSVP for this one <ArrowRight size={13} />
-                        </a>
-                        <a
+                          Register on Tagpuan <ArrowRight size={13} />
+                        </button>
+                        <button
                           className="rsvp-badge"
-                          href={RSVP_URL}
-                          target="_blank"
-                          rel="noreferrer"
-                          aria-label={`RSVP: ${rsvpCopy}`}
-                          onClick={clickEvent => clickEvent.stopPropagation()}
+                          type="button"
+                          aria-label={`Register: ${rsvpCopy}`}
+                          onClick={clickEvent => {
+                            clickEvent.stopPropagation();
+                            setSelectedEventId(event.id);
+                            openRegistration();
+                          }}
                         >
                           {event.initials.length > 0 && (
                             <span className="avatar-stack">
@@ -752,7 +852,7 @@ export default function Home() {
                             </span>
                           )}
                           <span>{rsvpCopy}</span>
-                        </a>
+                        </button>
                       </div>
                     </div>
                   </article>
@@ -1314,8 +1414,8 @@ export default function Home() {
               <a href={FACEBOOK_URL} target="_blank" rel="noreferrer">
                 Facebook <ExternalLink size={12} />
               </a>
-              <a href={RSVP_URL} target="_blank" rel="noreferrer">
-                Luma / RSVP <ExternalLink size={12} />
+              <a href="/events">
+                What's Going On <ArrowRight size={12} />
               </a>
               <a href="https://instagram.com" target="_blank" rel="noreferrer">
                 Instagram <ExternalLink size={12} />
@@ -1412,20 +1512,218 @@ export default function Home() {
               </ul>
             </div>
             <div className="event-modal-actions">
-              <a
+              <button
                 className="pill pill-primary"
-                href={RSVP_URL}
-                target="_blank"
-                rel="noreferrer"
+                type="button"
+                onClick={openRegistration}
               >
-                RSVP for this one <ArrowRight size={15} />
-              </a>
+                Register on Tagpuan <ArrowRight size={15} />
+              </button>
               <span className="event-modal-count">
                 {selectedEvent.count
                   ? `${selectedEvent.count} are going`
-                  : "Be the first to RSVP"}
+                  : "Be the first to register"}
               </span>
             </div>
+            {registrationOpen && (
+              <div className="registration-panel" aria-live="polite">
+                <div className="registration-heading">
+                  <p className="section-kicker">your info</p>
+                  <h3>Come as you are.</h3>
+                  <p>
+                    Tell us a little about yourself so we can make the night
+                    feel welcoming.
+                  </p>
+                </div>
+                {registrationSubmitted ? (
+                  <div className="registration-success" role="status">
+                    <Check size={24} />
+                    <strong>{registrationMessage}</strong>
+                    <p>
+                      We saved your spot for {selectedEvent.title}. We’ll see
+                      you at the hut.
+                    </p>
+                  </div>
+                ) : (
+                  <form
+                    className="registration-form"
+                    onSubmit={submitRegistration}
+                  >
+                    <label>
+                      Name <span aria-hidden="true">*</span>
+                      <input
+                        required
+                        value={registration.name}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            name: event.target.value,
+                          }))
+                        }
+                        placeholder="Your name"
+                        autoComplete="name"
+                      />
+                    </label>
+                    <label>
+                      Email <span aria-hidden="true">*</span>
+                      <input
+                        required
+                        type="email"
+                        value={registration.email}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            email: event.target.value,
+                          }))
+                        }
+                        placeholder="you@email.com"
+                        autoComplete="email"
+                      />
+                    </label>
+                    <label>
+                      Tell us a little about yourself{" "}
+                      <span aria-hidden="true">*</span>
+                      <small>
+                        (your field/industry, school, work, or side quests)
+                      </small>
+                      <textarea
+                        required
+                        minLength={10}
+                        value={registration.background}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            background: event.target.value,
+                          }))
+                        }
+                        placeholder="What keeps you busy or curious lately?"
+                      />
+                    </label>
+                    <label>
+                      What are you into these days?{" "}
+                      <span aria-hidden="true">*</span>
+                      <small>
+                        (interests, hobbies, projects, or anything you’re into)
+                      </small>
+                      <textarea
+                        required
+                        minLength={10}
+                        value={registration.currentInterests}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            currentInterests: event.target.value,
+                          }))
+                        }
+                        placeholder="Tell us what you’re making time for."
+                      />
+                    </label>
+                    <fieldset className="registration-interest-fieldset">
+                      <legend>
+                        What are some things you’re interested in?{" "}
+                        <span aria-hidden="true">*</span>{" "}
+                        <small>(pick up to 3)</small>
+                      </legend>
+                      <div className="registration-interest-grid">
+                        {topInterestOptions.map(interest => (
+                          <label key={interest}>
+                            <input
+                              type="checkbox"
+                              checked={registration.topInterests.includes(
+                                interest
+                              )}
+                              onChange={() => toggleTopInterest(interest)}
+                            />
+                            <span>{interest}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </fieldset>
+                    <label>
+                      How did you hear about Tagpuan?{" "}
+                      <span aria-hidden="true">*</span>
+                      <select
+                        required
+                        value={registration.heardFrom}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            heardFrom: event.target.value,
+                          }))
+                        }
+                      >
+                        <option value="">Select one</option>
+                        <option>Friend or community member</option>
+                        <option>Facebook or Instagram</option>
+                        <option>Event listing</option>
+                        <option>University or workplace</option>
+                        <option>Other</option>
+                      </select>
+                    </label>
+                    <label>
+                      Got a hot take?{" "}
+                      <small>(we might use it for a game)</small>
+                      <textarea
+                        value={registration.hotTake}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            hotTake: event.target.value,
+                          }))
+                        }
+                        placeholder="Pineapple on pizza? Tell us everything."
+                      />
+                    </label>
+                    <label>
+                      Have a suggestion for the night?
+                      <small>(games, songs, activities, anything else)</small>
+                      <textarea
+                        value={registration.nightSuggestion}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            nightSuggestion: event.target.value,
+                          }))
+                        }
+                        placeholder="What would make the night feel especially fun?"
+                      />
+                    </label>
+                    <label className="registration-consent">
+                      <input
+                        required
+                        type="checkbox"
+                        checked={registration.photoConsent}
+                        onChange={event =>
+                          setRegistration(current => ({
+                            ...current,
+                            photoConsent: event.target.checked,
+                          }))
+                        }
+                      />
+                      <span>
+                        I agree that Tagpuan may take and use event photos or
+                        videos for community updates and social media.
+                      </span>
+                    </label>
+                    {registrationMessage && (
+                      <p className="registration-error" role="alert">
+                        {registrationMessage}
+                      </p>
+                    )}
+                    <button
+                      className="pill pill-primary registration-submit"
+                      type="submit"
+                      disabled={registrationMutation.isPending}
+                    >
+                      {registrationMutation.isPending
+                        ? "Saving your spot…"
+                        : "Register"}{" "}
+                      <ArrowRight size={15} />
+                    </button>
+                  </form>
+                )}
+              </div>
+            )}
           </section>
         </div>
       )}

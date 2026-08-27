@@ -7,9 +7,12 @@ import { systemRouter } from "./_core/systemRouter";
 import { publicProcedure, router } from "./_core/trpc";
 import {
   countRecentBySession,
+  countRecentEventRegistrations,
   createReport,
   getNextPublicEvent,
+  incrementEventAttendeeCount,
   incrementWallPin,
+  insertEventRegistration,
   insertProjectUpdate,
   insertWallNote,
   listProjectUpdates,
@@ -18,6 +21,7 @@ import {
   listSpotlights,
   listVenuePins,
   listWallNotes,
+  findEventRegistration,
   subscribeNewsletter,
 } from "./db";
 
@@ -30,6 +34,19 @@ const projectSchema = z.object({
   body: z.string().trim().min(1).max(120),
   authorName: z.string().trim().max(100).optional(),
   tag: z.enum(["Art", "Tech", "Writing", "Music", "Research", "Other"]),
+});
+const eventRegistrationSchema = z.object({
+  eventSlug: z.string().trim().min(1).max(120),
+  eventId: z.number().int().positive().nullable().optional(),
+  name: z.string().trim().min(2).max(120),
+  email: z.string().trim().email().max(320),
+  background: z.string().trim().min(10).max(1000),
+  currentInterests: z.string().trim().min(10).max(1000),
+  topInterests: z.array(z.string().trim().min(1).max(80)).min(1).max(3),
+  heardFrom: z.string().trim().min(1).max(120),
+  hotTake: z.string().trim().max(500).optional(),
+  nightSuggestion: z.string().trim().max(500).optional(),
+  photoConsent: z.literal(true),
 });
 const reportSchema = z.object({
   targetType: z.enum(["wall", "project"]),
@@ -180,6 +197,45 @@ export const appRouter = router({
           input.reason
         );
         return { success: true, message: "Thanks, we'll take a look." };
+      }),
+  }),
+  registrations: router({
+    create: publicProcedure
+      .input(eventRegistrationSchema)
+      .mutation(async ({ ctx, input }) => {
+        const email = input.email.toLowerCase();
+        if (await findEventRegistration(input.eventSlug, email)) {
+          throw new TRPCError({
+            code: "CONFLICT",
+            message: "You’re already registered for this Tagpuan gathering.",
+          });
+        }
+        const hash = sessionHash(ctx.req);
+        if ((await countRecentEventRegistrations(hash)) > 0) {
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "One registration at a time, please. Try again later.",
+          });
+        }
+        const now = Date.now();
+        await insertEventRegistration({
+          ...input,
+          email,
+          eventId: input.eventId ?? null,
+          topInterests: input.topInterests.join(", "),
+          hotTake: input.hotTake || null,
+          nightSuggestion: input.nightSuggestion || null,
+          sessionHash: hash,
+          status: "confirmed",
+          createdAt: now,
+          updatedAt: now,
+          photoConsent: input.photoConsent ? 1 : 0,
+        });
+        if (input.eventId) await incrementEventAttendeeCount(input.eventId);
+        return {
+          success: true,
+          message: "You’re on the list. See you at Tagpuan!",
+        };
       }),
   }),
   newsletter: router({

@@ -57,6 +57,37 @@ export const events = mysqlTable(
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = typeof events.$inferInsert;
 
+export const eventRegistrations = mysqlTable(
+  "eventRegistrations",
+  {
+    id: int("id").autoincrement().primaryKey(),
+    eventId: int("eventId"),
+    eventSlug: varchar("eventSlug", { length: 120 }).notNull(),
+    name: varchar("name", { length: 120 }).notNull(),
+    email: varchar("email", { length: 320 }).notNull(),
+    background: text("background").notNull(),
+    currentInterests: text("currentInterests").notNull(),
+    topInterests: varchar("topInterests", { length: 500 }).notNull(),
+    heardFrom: varchar("heardFrom", { length: 120 }).notNull(),
+    hotTake: text("hotTake"),
+    nightSuggestion: text("nightSuggestion"),
+    photoConsent: int("photoConsent").default(1).notNull(),
+    sessionHash: varchar("sessionHash", { length: 64 }).notNull(),
+    status: mysqlEnum("status", ["confirmed", "cancelled"])
+      .default("confirmed")
+      .notNull(),
+    createdAt: bigint("createdAt", { mode: "number" }).notNull(),
+    updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
+  },
+  table => ({
+    eventIdx: index("eventRegistrations_event_idx").on(table.eventId),
+    emailIdx: index("eventRegistrations_email_idx").on(table.email),
+    sessionIdx: index("eventRegistrations_session_idx").on(table.sessionHash),
+  })
+);
+export type EventRegistration = typeof eventRegistrations.$inferSelect;
+export type InsertEventRegistration = typeof eventRegistrations.$inferInsert;
+
 export const wallNotes = mysqlTable(
   "wallNotes",
   {

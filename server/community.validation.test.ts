@@ -39,6 +39,21 @@ describe("Tagpuan public participation safeguards", () => {
     ).rejects.toThrow();
   });
 
+  it("validates the on-site event registration form", async () => {
+    await expect(
+      caller().registrations.create({
+        eventSlug: "saturday-night-session",
+        name: "A",
+        email: "not-an-email",
+        background: "short",
+        currentInterests: "short",
+        topInterests: [],
+        heardFrom: "",
+        photoConsent: false,
+      })
+    ).rejects.toThrow();
+  });
+
   it("keeps public content queries available without login", async () => {
     const events = await caller().content.events();
     const notes = await caller().wall.list({
