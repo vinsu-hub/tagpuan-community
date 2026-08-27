@@ -180,3 +180,9 @@
 - [x] Add meaningful recap captions and alt text based on each image’s event poster or gathering context.
 - [x] Preserve the existing scrapbook rotation, photo-frame treatment, lazy loading, and recap lightbox behavior.
 - [x] Verify desktop/mobile cropping, image loading, lightbox labels, and build health after the recap update.
+
+## Spotlight Carousel Fix
+
+- [x] Fix the Kilala Mo Ba Sila? next-card arrow so it advances through the active spotlight list and wraps correctly.
+- [x] Add a clearly labeled placeholder spotlight card for a future Tagpuan member without fabricating a testimonial or user-generated profile.
+- [x] Verify arrow keyboard/click behavior, active indicator state, placeholder readability, and mobile presentation.

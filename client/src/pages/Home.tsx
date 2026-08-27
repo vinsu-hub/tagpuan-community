@@ -182,6 +182,13 @@ const spotlight = {
   event: "FEATURED AT: SATURDAY NIGHT SESSION · AUG 29",
 };
 
+const placeholderSpotlight = {
+  name: "Next Tagpuan maker",
+  role: "Placeholder for the next member spotlight",
+  quote: "A real member story will live here after the next gathering.",
+  event: "OPEN SPOTLIGHT SLOT · SHARE YOUR PROJECT",
+};
+
 const aboutItems = [
   {
     icon: Users,
@@ -355,10 +362,13 @@ export default function Home() {
     };
   }, [selectedEvent]);
 
-  const currentSpotlight = useMemo(() => {
-    const items = cmsSpotlights?.length ? cmsSpotlights : [spotlight];
-    return items[spotlightIndex % items.length];
-  }, [cmsSpotlights, spotlightIndex]);
+  const spotlightItems = useMemo(
+    () =>
+      cmsSpotlights?.length ? cmsSpotlights : [spotlight, placeholderSpotlight],
+    [cmsSpotlights]
+  );
+  const currentSpotlight =
+    spotlightItems[spotlightIndex % spotlightItems.length];
   const displayedRecaps = cmsRecapPhotos?.length
     ? cmsRecapPhotos.map(photo => ({
         label: photo.caption || photo.imageAlt,
@@ -1154,19 +1164,38 @@ export default function Home() {
                     className="pushpin focus-ring"
                     type="button"
                     onClick={() =>
-                      setSpotlightIndex(index => Math.max(0, index - 1))
+                      setSpotlightIndex(
+                        index =>
+                          (index - 1 + spotlightItems.length) %
+                          spotlightItems.length
+                      )
                     }
                     aria-label="Previous member spotlight"
                   >
                     <ChevronLeft size={17} />
                   </button>
-                  <button className="dot active" aria-label="Spotlight one" />
-                  <button className="dot" aria-label="Spotlight two" />
-                  <button className="dot" aria-label="Spotlight three" />
+                  {spotlightItems.map((item, index) => (
+                    <button
+                      className={`dot ${index === spotlightIndex % spotlightItems.length ? "active" : ""}`}
+                      type="button"
+                      key={item.name || index}
+                      onClick={() => setSpotlightIndex(index)}
+                      aria-label={`Show spotlight ${index + 1}`}
+                      aria-current={
+                        index === spotlightIndex % spotlightItems.length
+                          ? "true"
+                          : undefined
+                      }
+                    />
+                  ))}
                   <button
                     className="pushpin focus-ring"
                     type="button"
-                    onClick={() => setSpotlightIndex(index => (index + 1) % 3)}
+                    onClick={() =>
+                      setSpotlightIndex(
+                        index => (index + 1) % spotlightItems.length
+                      )
+                    }
                     aria-label="Next member spotlight"
                   >
                     <ChevronRight size={17} />
