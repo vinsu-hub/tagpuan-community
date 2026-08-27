@@ -91,8 +91,10 @@ export async function getAdminDashboardStats() {
       passionProjects: 0,
       newsletterSubscribers: 0,
       openReports: 0,
+      unpublishedSpotlights: 0,
+      missingRecapPhotos: 0,
     };
-  const [upcoming, rsvps, applicants, notes, projects, subscribers, reports] =
+  const [upcoming, rsvps, applicants, notes, projects, subscribers, reports, spotlights, missingRecaps] =
     await Promise.all([
       db
         .select({ total: sql<number>`count(*)` })
@@ -113,6 +115,14 @@ export async function getAdminDashboardStats() {
         .select({ total: sql<number>`count(*)` })
         .from(moderationReports)
         .where(eq(moderationReports.status, "open")),
+      db
+        .select({ total: sql<number>`count(*)` })
+        .from(memberSpotlights)
+        .where(eq(memberSpotlights.isPublished, 0)),
+      db
+        .select({ total: sql<number>`count(*)` })
+        .from(recapPhotos)
+        .where(eq(recapPhotos.imageUrl, "")),
     ]);
   return {
     upcomingEvents: Number(upcoming[0]?.total ?? 0),
@@ -122,6 +132,8 @@ export async function getAdminDashboardStats() {
     passionProjects: Number(projects[0]?.total ?? 0),
     newsletterSubscribers: Number(subscribers[0]?.total ?? 0),
     openReports: Number(reports[0]?.total ?? 0),
+    unpublishedSpotlights: Number(spotlights[0]?.total ?? 0),
+    missingRecapPhotos: Number(missingRecaps[0]?.total ?? 0),
   };
 }
 

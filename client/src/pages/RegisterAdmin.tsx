@@ -526,8 +526,19 @@ function AdminPage() {
                   )}
                 </div>
                 {nextEvent ? (
-                  <>
-                    <p className="admin-next-meta">
+                  <div className="admin-next-body">
+                    <div
+                      className="admin-next-photo"
+                      style={
+                        nextEvent.imageUrl
+                          ? { backgroundImage: `url(${nextEvent.imageUrl})` }
+                          : undefined
+                      }
+                      aria-label={nextEvent.imageAlt ?? `${nextEvent.title} photo`}
+                      role="img"
+                    />
+                    <div className="admin-next-copy">
+                      <p className="admin-next-meta">
                       {nextEvent.venue} · {nextEvent.timeLabel}
                     </p>
                     <p>{nextEvent.description}</p>
@@ -571,7 +582,8 @@ function AdminPage() {
                         View public page <ArrowRight size={15} />
                       </Link>
                     </div>
-                  </>
+                    </div>
+                  </div>
                 ) : (
                   <p className="admin-empty">
                     Create your first gathering from the Events tab.
@@ -680,6 +692,20 @@ function AdminPage() {
                     {events.data?.filter(event => !event.isPublished).length ??
                       0}
                   </b>
+                </div>
+                <div className="admin-list-row">
+                  <span>
+                    <strong>Unpublished spotlights</strong>
+                    <small>Member profiles waiting for review</small>
+                  </span>
+                  <b>{dashboard.data?.unpublishedSpotlights ?? 0}</b>
+                </div>
+                <div className="admin-list-row">
+                  <span>
+                    <strong>Recap with missing photos</strong>
+                    <small>Media records needing an image reference</small>
+                  </span>
+                  <b>{dashboard.data?.missingRecapPhotos ?? 0}</b>
                 </div>
               </section>
             </div>

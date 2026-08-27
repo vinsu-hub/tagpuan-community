@@ -295,3 +295,11 @@
 - [x] Build a reference-aligned Create/Edit Event view with breadcrumbs, save/publish actions, event information, image area, description editor, activities, and publishing status.
 - [x] Preserve admin-only access, real-data/empty-state safeguards, validation, and existing event/applicant/content actions.
 - [x] Verify all admin routes at desktop and mobile widths, then run typecheck, tests, formatting, and production build.
+
+## Overview Reference Replication
+
+- [x] Match the reference Overview shell spacing, cream canvas, branded sidebar, active Overview state, account footer, and Preview website CTA.
+- [x] Match the six metric cards with live values and reference labels/icon hierarchy.
+- [x] Match the Next Gathering card with taped photo, session badge, metadata, attendee count, and dual actions using real event data or an honest empty state.
+- [x] Match Recent Activity, Recent RSVPs, Wall Activity, and Content Needing Attention panels with real records and safe empty states.
+- [x] Verify the Overview at desktop and mobile widths, then run typecheck, tests, formatting, and production build.
