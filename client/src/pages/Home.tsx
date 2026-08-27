@@ -826,8 +826,7 @@ export default function Home() {
                           type="button"
                           onClick={clickEvent => {
                             clickEvent.stopPropagation();
-                            setSelectedEventId(event.id);
-                            openRegistration();
+                            window.location.href = `/register?event=${encodeURIComponent(event.id)}`;
                           }}
                         >
                           Register on Tagpuan <ArrowRight size={13} />
@@ -838,8 +837,7 @@ export default function Home() {
                           aria-label={`Register: ${rsvpCopy}`}
                           onClick={clickEvent => {
                             clickEvent.stopPropagation();
-                            setSelectedEventId(event.id);
-                            openRegistration();
+                            window.location.href = `/register?event=${encodeURIComponent(event.id)}`;
                           }}
                         >
                           {event.initials.length > 0 && (
@@ -1423,6 +1421,9 @@ export default function Home() {
               <a href="mailto:hello@tagpuan.community">
                 Contact <Mail size={12} />
               </a>
+              <a href="/admin">
+                Admin workspace <ArrowRight size={12} />
+              </a>
             </div>
             <div className="map-card">
               <h4>where we usually are</h4>
@@ -1515,7 +1516,9 @@ export default function Home() {
               <button
                 className="pill pill-primary"
                 type="button"
-                onClick={openRegistration}
+                onClick={() => {
+                  window.location.href = `/register?event=${encodeURIComponent(selectedEvent.id)}`;
+                }}
               >
                 Register on Tagpuan <ArrowRight size={15} />
               </button>

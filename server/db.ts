@@ -80,6 +80,46 @@ export async function getUserByOpenId(openId: string) {
 const APPROVED = "approved" as const;
 const PENDING = "pending" as const;
 
+export async function listAdminEvents() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(events).orderBy(desc(events.startsAt));
+}
+
+export async function insertEvent(event: InsertEvent) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.insert(events).values(event);
+  return result[0]?.insertId;
+}
+
+export async function updateEvent(id: number, event: Partial<InsertEvent>) {
+  const db = await getDb();
+  if (!db) return;
+  await db.update(events).set(event).where(eq(events.id, id));
+}
+
+export async function listEventRegistrations() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(eventRegistrations)
+    .orderBy(desc(eventRegistrations.createdAt));
+}
+
+export async function updateEventRegistrationStatus(
+  id: number,
+  status: "confirmed" | "cancelled"
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(eventRegistrations)
+    .set({ status, updatedAt: Date.now() })
+    .where(eq(eventRegistrations.id, id));
+}
+
 export async function listPublicEvents() {
   const db = await getDb();
   if (!db) return [];

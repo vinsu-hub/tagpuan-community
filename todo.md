@@ -254,3 +254,13 @@
 - [x] Persist public registrations with event association, consent, session metadata, and duplicate-registration safeguards.
 - [x] Add a submitted confirmation state and clear error/rate-limit feedback without requiring login.
 - [x] Verify the registration flow on desktop and mobile, then run typecheck, tests, formatting, and production build.
+
+## Dedicated Registration and Admin Window
+
+- [x] Convert registration into a dedicated registration page/window with a prominent primary call-to-action button.
+- [x] Preserve the reference registration fields, validation, consent, confirmation, and public no-login submission flow on the dedicated page.
+- [x] Add a protected admin route using the existing authenticated dashboard layout and admin role boundary.
+- [x] Add admin event creation and editing foundations for titles, dates, venues, descriptions, activities, capacity, RSVP state, and images.
+- [x] Add admin content/media editing foundations for spotlights, recap images, venue pins, and homepage copy surfaces.
+- [x] Add an admin applicant review table with registration details, status, filters, and safe attendee actions.
+- [x] Add admin-focused tests and verify public/admin auth boundaries, responsive layouts, formatting, typecheck, tests, and production build.

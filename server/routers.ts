@@ -4,7 +4,7 @@ import { z } from "zod";
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import {
   countRecentBySession,
   countRecentEventRegistrations,
@@ -15,12 +15,17 @@ import {
   insertEventRegistration,
   insertProjectUpdate,
   insertWallNote,
+  listAdminEvents,
+  listEventRegistrations,
   listProjectUpdates,
   listPublicEvents,
   listRecapPhotos,
   listSpotlights,
   listVenuePins,
   listWallNotes,
+  updateEvent,
+  updateEventRegistrationStatus,
+  insertEvent,
   findEventRegistration,
   subscribeNewsletter,
 } from "./db";
@@ -66,6 +71,37 @@ function sessionHash(req: { headers: Record<string, unknown> }) {
   return createHash("sha256").update(`${forwarded}|${userAgent}`).digest("hex");
 }
 
+const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (ctx.user.role !== "admin")
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Admin access is required for this area.",
+    });
+  return next({ ctx });
+});
+
+const eventAdminSchema = z.object({
+  slug: z.string().trim().min(2).max(120),
+  title: z.string().trim().min(2).max(160),
+  dateLabel: z.string().trim().min(2).max(80),
+  startsAt: z.number().int().positive(),
+  endsAt: z.number().int().positive().nullable().optional(),
+  venue: z.string().trim().min(2).max(160),
+  venueAddress: z.string().trim().max(500).optional(),
+  timeLabel: z.string().trim().min(2).max(80),
+  rsvpUrl: z
+    .string()
+    .url()
+    .max(1000)
+    .default("https://tagpuan.community/events"),
+  capacity: z.number().int().positive().nullable().optional(),
+  imageUrl: z.string().url().max(1000).nullable().optional(),
+  imageAlt: z.string().trim().max(240).nullable().optional(),
+  description: z.string().trim().min(10).max(2000),
+  activities: z.array(z.string().trim().min(1).max(120)).min(1).max(12),
+  isPublished: z.number().int().min(0).max(1).default(1),
+});
+
 function rejectIfBlocked(body: string) {
   if (containsBlockedLanguage(body))
     throw new TRPCError({
@@ -76,6 +112,56 @@ function rejectIfBlocked(body: string) {
 
 export const appRouter = router({
   system: systemRouter,
+  admin: router({
+    events: adminProcedure.query(() => listAdminEvents()),
+    createEvent: adminProcedure
+      .input(eventAdminSchema)
+      .mutation(async ({ input }) => {
+        const now = Date.now();
+        await insertEvent({
+          ...input,
+          endsAt: input.endsAt ?? null,
+          venueAddress: input.venueAddress || null,
+          capacity: input.capacity ?? null,
+          imageUrl: input.imageUrl || null,
+          imageAlt: input.imageAlt || null,
+          activities: JSON.stringify(input.activities),
+          attendeeCount: 0,
+          createdAt: now,
+          updatedAt: now,
+        });
+        return { success: true, message: "Event created." };
+      }),
+    updateEvent: adminProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          changes: eventAdminSchema.partial(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const { activities, ...rest } = input.changes;
+        const changes = {
+          ...rest,
+          ...(activities ? { activities: JSON.stringify(activities) } : {}),
+          updatedAt: Date.now(),
+        };
+        await updateEvent(input.id, changes);
+        return { success: true, message: "Event updated." };
+      }),
+    registrations: adminProcedure.query(() => listEventRegistrations()),
+    updateRegistrationStatus: adminProcedure
+      .input(
+        z.object({
+          id: z.number().int().positive(),
+          status: z.enum(["confirmed", "cancelled"]),
+        })
+      )
+      .mutation(async ({ input }) => {
+        await updateEventRegistrationStatus(input.id, input.status);
+        return { success: true, message: "Applicant status updated." };
+      }),
+  }),
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
     logout: publicProcedure.mutation(({ ctx }) => {
