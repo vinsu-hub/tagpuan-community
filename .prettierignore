@@ -35,3 +35,4 @@ pnpm-lock.yaml
 Thumbs.db
 
 scripts/optimize_tagpuan_assets.py
+scripts/check_logo_alpha.py

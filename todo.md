@@ -196,3 +196,11 @@
 - [x] Confirm no source image reference still requires `/manus-storage/...` for the supplied local assets.
 - [x] Run typecheck, tests, formatting, production build, and a local asset-path verification.
 - [x] Sync the clone-ready changes to the connected GitHub repository without overwriting unrelated remote work.
+
+## Transparent Logo Regression Fix
+
+- [x] Diagnose why the optimized local logo files render with opaque pale rectangles instead of transparency.
+- [x] Regenerate the tracked logo variants with alpha transparency preserved and keep each file under the repository media limit.
+- [x] Confirm the hero uses the typography-only transparent wordmark, compact utility placements use the hut-only transparent mark, and the footer uses the full lockup without an opaque box.
+- [x] Verify header, reminder ribbon, hero, footer, and mobile-menu logo rendering at desktop and mobile widths.
+- [x] Run typecheck, tests, formatting, production build, and a final local asset-path check before checkpointing.
