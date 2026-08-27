@@ -1759,7 +1759,7 @@ export default function Home() {
               <X size={17} />
             </button>
             <div
-              className={`lightbox-image recap-photo`}
+              className="lightbox-image"
               style={
                 {
                   "--rotation": "0deg",

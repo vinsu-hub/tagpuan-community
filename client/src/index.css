@@ -1894,8 +1894,15 @@ select:focus-visible {
   transform: rotate(-1deg);
 }
 .lightbox-image {
-  min-height: 400px;
+  display: block;
+  width: 100%;
+  height: min(58vh, 520px);
+  min-height: 280px;
+  overflow: hidden;
   background: linear-gradient(145deg, #c77945, #4d2c1d);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: cover;
 }
 .lightbox-close {
   position: absolute;
@@ -3082,5 +3089,32 @@ select:focus-visible {
   .admin-tabs button {
     flex: 1 1 42%;
     justify-content: center;
+  }
+}
+
+@media (max-width: 600px) {
+  .lightbox-backdrop {
+    padding: 18px 12px;
+  }
+  .lightbox-panel {
+    width: 100%;
+    min-height: 0;
+    padding: 9px;
+  }
+  .lightbox-image {
+    height: min(58vh, 430px);
+    min-height: 240px;
+  }
+  .lightbox-nav {
+    gap: 7px;
+  }
+  .lightbox-nav > span {
+    max-width: 38%;
+    overflow: hidden;
+    text-align: center;
+    text-overflow: ellipsis;
+  }
+  .lightbox-nav .pill {
+    padding-inline: 10px;
   }
 }
