@@ -217,3 +217,10 @@
 - [x] Animate Join note, newsletter form, venue map, and footer columns.
 - [x] Add stagger limits, viewport-safe performance behavior, and a complete prefers-reduced-motion fallback.
 - [x] Verify the expanded landing-page animations on desktop and mobile, then run typecheck, tests, formatting, and production build.
+
+## Recap Animation Regression
+
+- [x] Restore the distinct Last time at Tagpuan recap photo-card entrance that was overridden by the expanded element-level reveal rules.
+- [x] Preserve the earlier scrapbook lift/settle timing and stagger for recap posters without affecting other cards.
+- [x] Confirm the recap animation remains reduced-motion safe and works on desktop and mobile layouts.
+- [x] Run typecheck, tests, formatting, production build, and recap visual QA before checkpointing.
