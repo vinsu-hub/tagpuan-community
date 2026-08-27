@@ -264,3 +264,9 @@
 - [x] Add admin content/media editing foundations for spotlights, recap images, venue pins, and homepage copy surfaces.
 - [x] Add an admin applicant review table with registration details, status, filters, and safe attendee actions.
 - [x] Add admin-focused tests and verify public/admin auth boundaries, responsive layouts, formatting, typecheck, tests, and production build.
+
+## Home Navigation Completeness Fix
+
+- [x] Restore every dedicated public tab on the home navigation: About, What's Going On, The Wall, Ginagawa Ko Ngayon, Kilala Mo Ba Sila?, and Join.
+- [x] Keep the complete tab set usable on mobile without hiding routes behind an inaccessible layout.
+- [x] Verify active states, route targets, keyboard access, desktop/mobile visibility, typecheck, tests, formatting, and production build.

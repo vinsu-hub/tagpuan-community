@@ -578,6 +578,12 @@ export default function Home() {
               <a href="/wall" onClick={() => setNavOpen(false)}>
                 The Wall
               </a>
+              <a href="/projects" onClick={() => setNavOpen(false)}>
+                Ginagawa Ko Ngayon
+              </a>
+              <a href="/people" onClick={() => setNavOpen(false)}>
+                Kilala Mo Ba Sila?
+              </a>
               <a href="/join" onClick={() => setNavOpen(false)}>
                 Join
               </a>
