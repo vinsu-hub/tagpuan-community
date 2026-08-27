@@ -224,3 +224,10 @@
 - [x] Preserve the earlier scrapbook lift/settle timing and stagger for recap posters without affecting other cards.
 - [x] Confirm the recap animation remains reduced-motion safe and works on desktop and mobile layouts.
 - [x] Run typecheck, tests, formatting, production build, and recap visual QA before checkpointing.
+
+## Recap Hover Animation
+
+- [x] Restore pointer-hover lift, slight tilt, and shadow response on Last time at Tagpuan recap cards.
+- [x] Keep hover animation separate from the scroll entrance so both behaviors work together without resetting the card’s scrapbook rotation.
+- [x] Disable non-essential hover motion under prefers-reduced-motion while preserving pointer and keyboard usability.
+- [x] Verify recap hover and scroll behavior, then run typecheck, tests, formatting, and production build.

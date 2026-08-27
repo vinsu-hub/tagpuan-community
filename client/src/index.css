@@ -2483,3 +2483,34 @@ select:focus-visible {
     transform: rotate(var(--rotation, 0deg));
   }
 }
+
+/* Recap hover restoration: independent properties avoid being masked by the scroll animation's filled transform. */
+.recap-photo {
+  scale: 1;
+  translate: 0 0;
+  transition:
+    scale 180ms var(--ease-out),
+    translate 180ms var(--ease-out),
+    box-shadow 180ms var(--ease-out),
+    filter 180ms var(--ease-out);
+}
+
+.recap-photo:hover,
+.recap-photo:focus-visible {
+  z-index: 2;
+  scale: 1.035;
+  translate: 0 -6px;
+  box-shadow: 0 18px 30px rgba(43, 27, 18, 0.28);
+  filter: saturate(1.08) contrast(1.03);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .recap-photo,
+  .recap-photo:hover,
+  .recap-photo:focus-visible {
+    scale: 1;
+    translate: 0 0;
+    filter: none;
+    transition: none;
+  }
+}
