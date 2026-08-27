@@ -311,3 +311,11 @@
 - [x] Rework Overview spacing, hierarchy, card proportions, typography, borders, shadows, and scrapbook photo treatment to closely match the supplied reference.
 - [x] Keep all activity, RSVP, Wall, and content-attention panels grounded in real records or honest empty states without fabricated community data.
 - [x] Verify the featured event and Overview on desktop/mobile, then run typecheck, tests, formatting, and production build.
+
+## Home Hero Screenshot Replication
+
+- [x] Match the screenshot’s dark hero background, layered texture, header height, hut mark, navigation spacing, and Join CTA.
+- [x] Match the centered hero eyebrow, large Tagpuan wordmark, intro paragraph width, vertical spacing, and contrast.
+- [x] Match the taped scrapbook message card’s size, rotation, placement, typography, and visible lower-edge composition.
+- [x] Preserve the event ribbon, route targets, mobile navigation, accessibility, and reduced-motion behavior.
+- [x] Verify desktop/mobile screenshots, then run typecheck, tests, formatting, and production build.
