@@ -32,9 +32,9 @@ import {
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const RSVP_URL = "https://lu.ma/";
-const TAGPUAN_LOGO_URL = "/manus-storage/tagpuanlogotransparent_92d74ba9.png";
-const TAGPUAN_TYPE_URL = "/manus-storage/TYPOGRAPHYONLY_d8733b2d.png";
-const TAGPUAN_HUT_URL = "/manus-storage/LOGOONLY_7725599d.png";
+const TAGPUAN_LOGO_URL = "/assets/tagpuan/tagpuan-lockup.webp";
+const TAGPUAN_TYPE_URL = "/assets/tagpuan/tagpuan-type.webp";
+const TAGPUAN_HUT_URL = "/assets/tagpuan/tagpuan-hut.webp";
 
 function useScrollReveal() {
   useEffect(() => {
@@ -147,23 +147,23 @@ const recapPhotos = [
   {
     label: "Malaya's Den work session poster — August 8, 2026",
     rotation: "-3deg",
-    imageUrl: "/manus-storage/tagpuan-recap-1_f0518c75.png",
+    imageUrl: "/assets/tagpuan/recap-01.webp",
   },
   {
     label: "Run, coffee, and chill work-session poster — August 2, 2026",
     rotation: "2deg",
-    imageUrl: "/manus-storage/tagpuan-recap-2_223f67b4.png",
+    imageUrl: "/assets/tagpuan/recap-02.webp",
   },
   {
     label: "Work session poster at The Den by Danielitos — July 25, 2026",
     rotation: "-1deg",
-    imageUrl: "/manus-storage/tagpuan-recap-3_4219b44b.png",
+    imageUrl: "/assets/tagpuan/recap-03.webp",
   },
   {
     label:
       "Tagpuan work session poster at The Den by Danielitos — July 11, 2026",
     rotation: "3deg",
-    imageUrl: "/manus-storage/tagpuan-recap-4_8a1d4373.png",
+    imageUrl: "/assets/tagpuan/recap-04.webp",
   },
 ];
 

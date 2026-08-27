@@ -335,7 +335,7 @@ select:focus-visible {
   opacity: 0.19;
   background-image:
     linear-gradient(rgba(43, 27, 18, 0.22), rgba(43, 27, 18, 0.72)),
-    url("/manus-storage/tagpuan-concept-reference_9eee853e.png");
+    url("/assets/tagpuan/concept-reference.webp");
   background-size: cover;
   background-position: center 34%;
   mix-blend-mode: soft-light;
@@ -783,7 +783,7 @@ select:focus-visible {
   opacity: 0.24;
   background:
     linear-gradient(135deg, rgba(232, 169, 76, 0.3), transparent 38%),
-    url("/manus-storage/tagpuan-logo-reference_46d4a0d7.png") center/cover;
+    url("/assets/tagpuan/logo-reference.webp") center/cover;
   filter: saturate(0.65) contrast(1.08);
 }
 .events .section-wrap {
@@ -904,8 +904,7 @@ select:focus-visible {
 .event-photo.one {
   background:
     linear-gradient(145deg, rgba(25, 15, 9, 0.2), rgba(100, 45, 20, 0.32)),
-    url("/manus-storage/tagpuan-concept-reference_9eee853e.png") center 17% /
-      cover;
+    url("/assets/tagpuan/concept-reference.webp") center 17% / cover;
   filter: saturate(0.82);
 }
 .event-photo.two {
@@ -1094,8 +1093,7 @@ select:focus-visible {
     linear-gradient(150deg, rgba(250, 246, 236, 0.05), rgba(43, 27, 18, 0.48));
 }
 .recap-photo:nth-child(1) {
-  background: url("/manus-storage/tagpuan-concept-reference_9eee853e.png")
-    center 48% / cover;
+  background: url("/assets/tagpuan/concept-reference.webp") center 48% / cover;
 }
 .recap-photo:nth-child(2) {
   background: linear-gradient(135deg, #c78950, #4b2b1c);
@@ -1441,7 +1439,7 @@ select:focus-visible {
   min-height: 390px;
   background:
     linear-gradient(145deg, rgba(43, 27, 18, 0.12), rgba(43, 27, 18, 0.42)),
-    url("/manus-storage/tagpuan-logo-reference_46d4a0d7.png") center 30% / cover;
+    url("/assets/tagpuan/logo-reference.webp") center 30% / cover;
   filter: saturate(0.84);
 }
 .spotlight-copy {

@@ -186,3 +186,13 @@
 - [x] Fix the Kilala Mo Ba Sila? next-card arrow so it advances through the active spotlight list and wraps correctly.
 - [x] Add a clearly labeled placeholder spotlight card for a future Tagpuan member without fabricating a testimonial or user-generated profile.
 - [x] Verify arrow keyboard/click behavior, active indicator state, placeholder readability, and mobile presentation.
+
+## Clone-ready Local Assets
+
+- [x] Add all supplied Tagpuan logo variants and recap/event images to a Git-tracked local asset directory under the client app.
+- [x] Replace Manus-only `/manus-storage/...` image references with local public asset paths that work after `git clone`.
+- [x] Preserve the current Manus-hosted asset behavior where possible without making local development depend on Manus storage.
+- [x] Add README documentation for `pnpm install`, `pnpm dev`, asset locations, environment requirements, and production build.
+- [x] Confirm no source image reference still requires `/manus-storage/...` for the supplied local assets.
+- [x] Run typecheck, tests, formatting, production build, and a local asset-path verification.
+- [x] Sync the clone-ready changes to the connected GitHub repository without overwriting unrelated remote work.

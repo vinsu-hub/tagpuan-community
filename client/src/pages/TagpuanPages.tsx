@@ -16,7 +16,7 @@ import { useLocation } from "wouter";
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const RSVP_URL = "https://lu.ma/";
-const TAGPUAN_LOGO_URL = "/manus-storage/LOGOONLY_7725599d.png";
+const TAGPUAN_LOGO_URL = "/assets/tagpuan/tagpuan-hut.webp";
 
 function useScrollReveal() {
   useEffect(() => {
