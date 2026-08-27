@@ -1,0 +1,5 @@
+# Admin alignment final QA
+
+The protected admin workspace now includes the reference-aligned Overview, All Events, and Create/Edit Event modes within the existing authenticated shell. The Overview uses real dashboard metrics, event data, applicant data, moderation counts, and honest empty states. The All Events mode includes status filters, title/venue search, status-aware rows, photo treatments, edit/public actions, and a Create event entry point. The editor remains connected to the existing validated create/update procedures.
+
+Desktop QA at 1536px confirms the cream canvas, branded grouped sidebar, dark active Overview pill, six-metric row, next-gathering/activity split, and lower dashboard panels. Mobile QA at 390px confirms the compact shell, tabs, metrics, and stacked dashboard panels remain readable and usable. The transparent hut asset is filtered to a dark mark for contrast against the cream sidebar. No fabricated community names, testimonials, applicant records, or counts were added. Typecheck, Vitest, formatting, and production build pass.

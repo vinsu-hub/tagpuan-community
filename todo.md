@@ -285,3 +285,13 @@
 - [x] Add Recent Activity, Recent RSVPs, Wall Activity, and Content Needing Attention dashboard panels using real data or honest empty states.
 - [x] Preserve admin-only access and existing Events, Applicants, and Content & Media management actions.
 - [x] Verify desktop/mobile visual parity, avoid fabricated community records, then run typecheck, tests, formatting, and production build.
+
+## Full Admin Reference Alignment
+
+- [x] Reconcile every protected admin route against the supplied Overview, All Events, and Create Event references.
+- [x] Align the shared admin shell with the cream canvas, branded grouped sidebar, active states, user footer, and Preview website CTA.
+- [x] Align the Overview dashboard with live metrics, next gathering, recent activity, recent RSVPs, Wall activity, and content attention panels.
+- [x] Build a reference-aligned All Events view with status filters, search, status-aware event rows, actions, and pagination.
+- [x] Build a reference-aligned Create/Edit Event view with breadcrumbs, save/publish actions, event information, image area, description editor, activities, and publishing status.
+- [x] Preserve admin-only access, real-data/empty-state safeguards, validation, and existing event/applicant/content actions.
+- [x] Verify all admin routes at desktop and mobile widths, then run typecheck, tests, formatting, and production build.

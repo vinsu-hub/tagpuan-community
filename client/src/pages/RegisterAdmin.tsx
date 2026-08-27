@@ -8,7 +8,9 @@ import {
   Image,
   LayoutDashboard,
   Mail,
+  MapPin,
   Plus,
+  Search,
   Save,
   Users,
   X,
@@ -329,9 +331,13 @@ const emptyDraft: EventDraft = {
 function AdminPage() {
   const { user } = useAuth();
   const [section, setSection] = useState<
-    "overview" | "events" | "applicants" | "content"
+    "overview" | "events" | "create" | "applicants" | "content"
   >("overview");
   const [draft, setDraft] = useState<EventDraft>(emptyDraft);
+  const [eventFilter, setEventFilter] = useState<
+    "all" | "upcoming" | "draft" | "past"
+  >("all");
+  const [eventSearch, setEventSearch] = useState("");
   const [message, setMessage] = useState("");
   const events = trpc.admin.events.useQuery(undefined, {
     enabled: user?.role === "admin",
@@ -366,6 +372,24 @@ function AdminPage() {
   const nextEvent = events.data
     ?.filter(event => event.startsAt > Date.now() && event.isPublished)
     .sort((a, b) => a.startsAt - b.startsAt)[0];
+  const filteredEvents = useMemo(() => {
+    const normalizedSearch = eventSearch.trim().toLowerCase();
+    return (events.data ?? []).filter(event => {
+      const matchesFilter =
+        eventFilter === "all" ||
+        (eventFilter === "upcoming" &&
+          event.startsAt >= Date.now() &&
+          Boolean(event.isPublished)) ||
+        (eventFilter === "draft" && !event.isPublished) ||
+        (eventFilter === "past" && event.startsAt < Date.now());
+      const matchesSearch =
+        !normalizedSearch ||
+        `${event.title} ${event.venue}`
+          .toLowerCase()
+          .includes(normalizedSearch);
+      return matchesFilter && matchesSearch;
+    });
+  }, [eventFilter, eventSearch, events.data]);
   const submitEvent = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const payload = {
@@ -424,11 +448,8 @@ function AdminPage() {
               surfaces current.
             </p>
           </div>
-          <Link
-            className="pill pill-primary"
-            href="/register?event=sunday-sessions"
-          >
-            Preview registration <ArrowRight size={15} />
+          <Link className="pill pill-primary" href="/">
+            Preview website <ArrowRight size={15} />
           </Link>
         </div>
         <nav className="admin-tabs" aria-label="Admin sections">
@@ -515,7 +536,7 @@ function AdminPage() {
                         className="pill pill-primary"
                         type="button"
                         onClick={() => {
-                          setSection("events");
+                          setSection("create");
                           setDraft({
                             id: nextEvent.id,
                             slug: nextEvent.slug,
@@ -665,6 +686,137 @@ function AdminPage() {
           </>
         )}
         {section === "events" && (
+          <section className="admin-events-view">
+            <div className="admin-page-heading">
+              <div>
+                <p className="section-kicker">events</p>
+                <h2>What’s going on?</h2>
+                <p>Manage gatherings, schedules, RSVPs, and event content.</p>
+              </div>
+              <button
+                className="pill pill-primary"
+                type="button"
+                onClick={() => {
+                  setDraft(emptyDraft);
+                  setSection("create");
+                }}
+              >
+                <Plus size={16} /> Create event
+              </button>
+            </div>
+            <div className="admin-events-toolbar">
+              <div className="admin-filter-pills">
+                {(["all", "upcoming", "draft", "past"] as const).map(filter => (
+                  <button
+                    key={filter}
+                    className={eventFilter === filter ? "active" : ""}
+                    type="button"
+                    onClick={() => setEventFilter(filter)}
+                  >
+                    {filter[0].toUpperCase() + filter.slice(1)}
+                  </button>
+                ))}
+              </div>
+              <label className="admin-search">
+                <Search size={16} />
+                <span className="sr-only">Search events</span>
+                <input
+                  value={eventSearch}
+                  onChange={event => setEventSearch(event.target.value)}
+                  placeholder="Search events…"
+                />
+              </label>
+            </div>
+            <div className="admin-event-list">
+              {filteredEvents.map(event => (
+                <article className="admin-event-row" key={event.id}>
+                  <div
+                    className="admin-event-photo"
+                    style={
+                      event.imageUrl
+                        ? { backgroundImage: `url(${event.imageUrl})` }
+                        : undefined
+                    }
+                  >
+                    <span>{event.imageUrl ? "" : "No photo"}</span>
+                  </div>
+                  <div className="admin-event-details">
+                    <div className="admin-event-titleline">
+                      <span
+                        className={`admin-status ${event.isPublished ? (event.startsAt < Date.now() ? "past" : "published") : "draft"}`}
+                      >
+                        {event.isPublished
+                          ? event.startsAt < Date.now()
+                            ? "Past"
+                            : "Published"
+                          : "Draft"}
+                      </span>
+                      <span className="admin-session-label">
+                        {event.dateLabel}
+                      </span>
+                    </div>
+                    <h3>{event.title}</h3>
+                    <p className="admin-event-meta">
+                      {event.dateLabel} · {event.timeLabel} ·{" "}
+                      <MapPin size={13} /> {event.venue}
+                    </p>
+                    <p>{event.description}</p>
+                    <div className="admin-event-stats">
+                      <span>
+                        <Users size={14} /> {event.attendeeCount} going
+                      </span>
+                      <span>
+                        <Check size={14} /> {event.capacity ?? "—"} capacity
+                      </span>
+                    </div>
+                  </div>
+                  <div className="admin-event-actions">
+                    <button
+                      className="pill pill-outline"
+                      type="button"
+                      onClick={() => {
+                        setDraft({
+                          id: event.id,
+                          slug: event.slug,
+                          title: event.title,
+                          dateLabel: event.dateLabel,
+                          startsAt: new Date(event.startsAt)
+                            .toISOString()
+                            .slice(0, 16),
+                          endsAt: event.endsAt
+                            ? new Date(event.endsAt).toISOString().slice(0, 16)
+                            : "",
+                          venue: event.venue,
+                          venueAddress: event.venueAddress ?? "",
+                          timeLabel: event.timeLabel,
+                          capacity: event.capacity?.toString() ?? "",
+                          imageUrl: event.imageUrl ?? "",
+                          imageAlt: event.imageAlt ?? "",
+                          description: event.description,
+                          activities: event.activities,
+                          isPublished: Boolean(event.isPublished),
+                        });
+                        setSection("create");
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <Link
+                      className="pill pill-outline"
+                      href={`/events#event-${event.slug}`}
+                    >
+                      View public
+                    </Link>
+                  </div>
+                </article>
+              ))}
+              {!filteredEvents.length && (
+                <p className="admin-empty">No events match this view yet.</p>
+              )}
+            </div>
+          </section>
+        )}
+        {section === "create" && (
           <div className="admin-two-column">
             <form
               className="admin-card admin-event-form"

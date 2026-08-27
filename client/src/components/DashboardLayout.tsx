@@ -21,14 +21,56 @@ import {
 } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { LayoutDashboard, LogOut, PanelLeft } from "lucide-react";
+import {
+  CalendarDays,
+  ClipboardList,
+  Image,
+  LayoutDashboard,
+  LogOut,
+  Mail,
+  Megaphone,
+  PanelLeft,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
 import { Button } from "./ui/button";
 
-const menuItems = [
-  { icon: LayoutDashboard, label: "Admin workspace", path: "/admin" },
+const menuGroups = [
+  {
+    label: "",
+    items: [{ icon: LayoutDashboard, label: "Overview", path: "/admin" }],
+  },
+  {
+    label: "Events",
+    items: [
+      { icon: CalendarDays, label: "All Events", path: "/admin" },
+      { icon: CalendarDays, label: "Create Event", path: "/admin" },
+      { icon: Image, label: "Event Recaps", path: "/admin" },
+    ],
+  },
+  {
+    label: "Community",
+    items: [
+      { icon: ClipboardList, label: "Wall", path: "/admin" },
+      { icon: Sparkles, label: "Passion Projects", path: "/admin" },
+      { icon: Users, label: "Applicants", path: "/admin" },
+    ],
+  },
+  {
+    label: "Content",
+    items: [
+      { icon: Users, label: "Member Spotlights", path: "/admin" },
+      { icon: Megaphone, label: "Hear Me Out", path: "/admin" },
+      { icon: Image, label: "Media", path: "/admin" },
+    ],
+  },
+  {
+    label: "Audience",
+    items: [{ icon: Mail, label: "Newsletter", path: "/admin" }],
+  },
 ];
 
 const SIDEBAR_WIDTH_KEY = "sidebar-width";
@@ -110,7 +152,9 @@ function DashboardLayoutContent({
   const isCollapsed = state === "collapsed";
   const [isResizing, setIsResizing] = useState(false);
   const sidebarRef = useRef<HTMLDivElement>(null);
-  const activeMenuItem = menuItems.find(item => item.path === location);
+  const activeMenuItem = menuGroups
+    .flatMap(group => group.items)
+    .find(item => item.path === location);
   const isMobile = useIsMobile();
 
   useEffect(() => {
@@ -154,7 +198,7 @@ function DashboardLayoutContent({
       <div className="relative" ref={sidebarRef}>
         <Sidebar
           collapsible="icon"
-          className="border-r-0"
+          className="admin-sidebar border-r-0"
           disableTransition={isResizing}
         >
           <SidebarHeader className="h-16 justify-center">
@@ -167,36 +211,48 @@ function DashboardLayoutContent({
                 <PanelLeft className="h-4 w-4 text-muted-foreground" />
               </button>
               {!isCollapsed ? (
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-semibold tracking-tight truncate">
-                    Navigation
-                  </span>
+                <div className="admin-sidebar-brand flex items-center gap-2 min-w-0">
+                  <img src="/assets/tagpuan/tagpuan-hut.webp" alt="" />
+                  <div>
+                    <strong>TAGPUAN</strong>
+                    <span>Admin Workspace</span>
+                  </div>
                 </div>
               ) : null}
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="gap-0">
-            <SidebarMenu className="px-2 py-1">
-              {menuItems.map(item => {
-                const isActive = location === item.path;
-                return (
-                  <SidebarMenuItem key={item.path}>
-                    <SidebarMenuButton
-                      isActive={isActive}
-                      onClick={() => setLocation(item.path)}
-                      tooltip={item.label}
-                      className={`h-10 transition-all font-normal`}
-                    >
-                      <item.icon
-                        className={`h-4 w-4 ${isActive ? "text-primary" : ""}`}
-                      />
-                      <span>{item.label}</span>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                );
-              })}
-            </SidebarMenu>
+          <SidebarContent className="admin-sidebar-content gap-0">
+            {menuGroups.map(group => (
+              <div
+                className="admin-sidebar-group"
+                key={group.label || "overview"}
+              >
+                {group.label && <p>{group.label}</p>}
+                <SidebarMenu className="px-2 py-1">
+                  {group.items.map((item, index) => {
+                    const isActive =
+                      group.label === "" ||
+                      (group.label === "Events" &&
+                        index === 0 &&
+                        location === "/admin?section=events");
+                    return (
+                      <SidebarMenuItem key={`${group.label}-${item.label}`}>
+                        <SidebarMenuButton
+                          isActive={isActive}
+                          onClick={() => setLocation(item.path)}
+                          tooltip={item.label}
+                          className="admin-sidebar-item h-10 transition-all font-normal"
+                        >
+                          <item.icon className="h-4 w-4" />
+                          <span>{item.label}</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    );
+                  })}
+                </SidebarMenu>
+              </div>
+            ))}
           </SidebarContent>
 
           <SidebarFooter className="p-3">
