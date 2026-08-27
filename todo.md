@@ -303,3 +303,11 @@
 - [x] Match the Next Gathering card with taped photo, session badge, metadata, attendee count, and dual actions using real event data or an honest empty state.
 - [x] Match Recent Activity, Recent RSVPs, Wall Activity, and Content Needing Attention panels with real records and safe empty states.
 - [x] Verify the Overview at desktop and mobile widths, then run typecheck, tests, formatting, and production build.
+
+## August 29 Featured Overview Rehaul
+
+- [x] Make the real August 29 Saturday Night Session / The Social Room event the featured Next Gathering when it is the next published event.
+- [x] Surface the event’s existing local image, session label, date, time, venue, attendee count, capacity, and public/admin actions in the Overview card.
+- [x] Rework Overview spacing, hierarchy, card proportions, typography, borders, shadows, and scrapbook photo treatment to closely match the supplied reference.
+- [x] Keep all activity, RSVP, Wall, and content-attention panels grounded in real records or honest empty states without fabricated community data.
+- [x] Verify the featured event and Overview on desktop/mobile, then run typecheck, tests, formatting, and production build.

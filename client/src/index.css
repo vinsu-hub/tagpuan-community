@@ -3491,9 +3491,76 @@ select:focus-visible {
   }
 }
 
-.admin-next-body { display:grid; grid-template-columns:minmax(220px,.9fr) 1.1fr; gap:26px; align-items:center; margin-top:12px; }
-.admin-next-photo { position:relative; min-height:190px; border:8px solid var(--paper); background:linear-gradient(135deg,var(--terracotta),var(--espresso)); background-position:center; background-size:cover; box-shadow:var(--shadow-soft); transform:rotate(-3deg); }
-.admin-next-photo::before { content:""; position:absolute; top:-20px; left:-28px; width:100px; height:25px; background:rgba(238,218,177,.78); transform:rotate(-24deg); }
-.admin-next-copy { min-width:0; }
-.admin-next-copy .admin-action-row { flex-wrap:wrap; }
-@media (max-width: 800px) { .admin-next-body { grid-template-columns:1fr; } .admin-next-photo { min-height:220px; } }
+.admin-next-body {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.9fr) 1.1fr;
+  gap: 26px;
+  align-items: center;
+  margin-top: 12px;
+}
+.admin-next-photo {
+  position: relative;
+  min-height: 190px;
+  border: 8px solid var(--paper);
+  background: linear-gradient(135deg, var(--terracotta), var(--espresso));
+  background-position: center;
+  background-size: cover;
+  box-shadow: var(--shadow-soft);
+  transform: rotate(-3deg);
+}
+.admin-next-photo::before {
+  content: "";
+  position: absolute;
+  top: -20px;
+  left: -28px;
+  width: 100px;
+  height: 25px;
+  background: rgba(238, 218, 177, 0.78);
+  transform: rotate(-24deg);
+}
+.admin-next-copy {
+  min-width: 0;
+}
+.admin-next-copy .admin-action-row {
+  flex-wrap: wrap;
+}
+@media (max-width: 800px) {
+  .admin-next-body {
+    grid-template-columns: 1fr;
+  }
+  .admin-next-photo {
+    min-height: 220px;
+  }
+}
+
+.admin-next-details {
+  display: grid;
+  gap: 9px;
+  margin: 3px 0 17px;
+  color: var(--espresso);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+.admin-next-details span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-next-details svg {
+  color: var(--terracotta);
+  flex: 0 0 auto;
+}
+.admin-next-copy > p {
+  max-width: 42ch;
+  line-height: 1.5;
+}
+@media (max-width: 800px) {
+  .admin-next-details {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+@media (max-width: 440px) {
+  .admin-next-details {
+    grid-template-columns: 1fr;
+  }
+}

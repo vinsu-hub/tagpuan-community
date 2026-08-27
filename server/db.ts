@@ -94,36 +94,45 @@ export async function getAdminDashboardStats() {
       unpublishedSpotlights: 0,
       missingRecapPhotos: 0,
     };
-  const [upcoming, rsvps, applicants, notes, projects, subscribers, reports, spotlights, missingRecaps] =
-    await Promise.all([
-      db
-        .select({ total: sql<number>`count(*)` })
-        .from(events)
-        .where(and(eq(events.isPublished, 1), gt(events.startsAt, Date.now()))),
-      db
-        .select({ total: sql<number>`count(*)` })
-        .from(eventRegistrations)
-        .where(eq(eventRegistrations.status, "confirmed")),
-      db.select({ total: sql<number>`count(*)` }).from(eventRegistrations),
-      db.select({ total: sql<number>`count(*)` }).from(wallNotes),
-      db.select({ total: sql<number>`count(*)` }).from(projectUpdates),
-      db
-        .select({ total: sql<number>`count(*)` })
-        .from(newsletterSubscribers)
-        .where(eq(newsletterSubscribers.status, "subscribed")),
-      db
-        .select({ total: sql<number>`count(*)` })
-        .from(moderationReports)
-        .where(eq(moderationReports.status, "open")),
-      db
-        .select({ total: sql<number>`count(*)` })
-        .from(memberSpotlights)
-        .where(eq(memberSpotlights.isPublished, 0)),
-      db
-        .select({ total: sql<number>`count(*)` })
-        .from(recapPhotos)
-        .where(eq(recapPhotos.imageUrl, "")),
-    ]);
+  const [
+    upcoming,
+    rsvps,
+    applicants,
+    notes,
+    projects,
+    subscribers,
+    reports,
+    spotlights,
+    missingRecaps,
+  ] = await Promise.all([
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(events)
+      .where(and(eq(events.isPublished, 1), gt(events.startsAt, Date.now()))),
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(eventRegistrations)
+      .where(eq(eventRegistrations.status, "confirmed")),
+    db.select({ total: sql<number>`count(*)` }).from(eventRegistrations),
+    db.select({ total: sql<number>`count(*)` }).from(wallNotes),
+    db.select({ total: sql<number>`count(*)` }).from(projectUpdates),
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(newsletterSubscribers)
+      .where(eq(newsletterSubscribers.status, "subscribed")),
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(moderationReports)
+      .where(eq(moderationReports.status, "open")),
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(memberSpotlights)
+      .where(eq(memberSpotlights.isPublished, 0)),
+    db
+      .select({ total: sql<number>`count(*)` })
+      .from(recapPhotos)
+      .where(eq(recapPhotos.imageUrl, "")),
+  ]);
   return {
     upcomingEvents: Number(upcoming[0]?.total ?? 0),
     totalRsvps: Number(rsvps[0]?.total ?? 0),

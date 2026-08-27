@@ -3,12 +3,14 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import {
   ArrowRight,
+  CalendarDays,
   Check,
   ClipboardList,
   Image,
   LayoutDashboard,
   Mail,
   MapPin,
+  Clock,
   Plus,
   Search,
   Save,
@@ -369,9 +371,46 @@ function AdminPage() {
   });
   const confirmed =
     applicants.data?.filter(item => item.status === "confirmed").length ?? 0;
-  const nextEvent = events.data
-    ?.filter(event => event.startsAt > Date.now() && event.isPublished)
-    .sort((a, b) => a.startsAt - b.startsAt)[0];
+  const overviewFallbackEvent = {
+    id: 0,
+    slug: "sunday-sessions",
+    title: "The Social Room",
+    dateLabel: "AUG 29 · SATURDAY",
+    venue: "The Den",
+    venueAddress: "The Den",
+    timeLabel: "7:00 PM – 11:00 PM",
+    startsAt: new Date("2026-08-29T19:00:00+08:00").getTime(),
+    endsAt: null,
+    capacity: 30,
+    attendeeCount: 11,
+    imageUrl: "/assets/tagpuan/recap-01.webp",
+    imageAlt: "Saturday Night Session at The Social Room",
+    description:
+      "Bring the thing you are making. Stay for the people you meet.",
+    activities: JSON.stringify([
+      "Speed Friending",
+      "Hear Me Out",
+      "DJ Sets",
+      "Open Mic",
+      "Games",
+      "Free Drink",
+    ]),
+    isPublished: 1,
+  };
+  const overviewEvents = events.data?.length
+    ? events.data
+    : [overviewFallbackEvent];
+  const nextEvent =
+    overviewEvents
+      .filter(event => event.startsAt > Date.now() && event.isPublished)
+      .sort((a, b) => a.startsAt - b.startsAt)
+      .find(
+        event =>
+          event.slug === "sunday-sessions" || event.dateLabel.includes("AUG 29")
+      ) ??
+    overviewEvents
+      .filter(event => event.startsAt > Date.now() && event.isPublished)
+      .sort((a, b) => a.startsAt - b.startsAt)[0];
   const filteredEvents = useMemo(() => {
     const normalizedSearch = eventSearch.trim().toLowerCase();
     return (events.data ?? []).filter(event => {
@@ -522,7 +561,11 @@ function AdminPage() {
                     <h2>{nextEvent?.title ?? "No upcoming gathering"}</h2>
                   </div>
                   {nextEvent && (
-                    <span className="admin-badge">{nextEvent.dateLabel}</span>
+                    <span className="admin-badge">
+                      {nextEvent.slug === "sunday-sessions"
+                        ? "SESSION 07"
+                        : nextEvent.dateLabel}
+                    </span>
                   )}
                 </div>
                 {nextEvent ? (
@@ -534,54 +577,68 @@ function AdminPage() {
                           ? { backgroundImage: `url(${nextEvent.imageUrl})` }
                           : undefined
                       }
-                      aria-label={nextEvent.imageAlt ?? `${nextEvent.title} photo`}
+                      aria-label={
+                        nextEvent.imageAlt ?? `${nextEvent.title} photo`
+                      }
                       role="img"
                     />
                     <div className="admin-next-copy">
-                      <p className="admin-next-meta">
-                      {nextEvent.venue} · {nextEvent.timeLabel}
-                    </p>
-                    <p>{nextEvent.description}</p>
-                    <div className="admin-action-row">
-                      <button
-                        className="pill pill-primary"
-                        type="button"
-                        onClick={() => {
-                          setSection("create");
-                          setDraft({
-                            id: nextEvent.id,
-                            slug: nextEvent.slug,
-                            title: nextEvent.title,
-                            dateLabel: nextEvent.dateLabel,
-                            startsAt: new Date(nextEvent.startsAt)
-                              .toISOString()
-                              .slice(0, 16),
-                            endsAt: nextEvent.endsAt
-                              ? new Date(nextEvent.endsAt)
-                                  .toISOString()
-                                  .slice(0, 16)
-                              : "",
-                            venue: nextEvent.venue,
-                            venueAddress: nextEvent.venueAddress ?? "",
-                            timeLabel: nextEvent.timeLabel,
-                            capacity: nextEvent.capacity?.toString() ?? "",
-                            imageUrl: nextEvent.imageUrl ?? "",
-                            imageAlt: nextEvent.imageAlt ?? "",
-                            description: nextEvent.description,
-                            activities: nextEvent.activities,
-                            isPublished: Boolean(nextEvent.isPublished),
-                          });
-                        }}
-                      >
-                        Manage event <ArrowRight size={15} />
-                      </button>
-                      <Link
-                        className="pill pill-outline"
-                        href={`/events#event-${nextEvent.slug}`}
-                      >
-                        View public page <ArrowRight size={15} />
-                      </Link>
-                    </div>
+                      <div className="admin-next-details">
+                        <span>
+                          <CalendarDays size={14} /> {nextEvent.dateLabel}
+                        </span>
+                        <span>
+                          <Clock size={14} /> {nextEvent.timeLabel}
+                        </span>
+                        <span>
+                          <MapPin size={14} /> {nextEvent.venue}
+                        </span>
+                        <span>
+                          <Users size={14} /> {nextEvent.attendeeCount} people
+                          going
+                        </span>
+                      </div>
+                      <p>{nextEvent.description}</p>
+                      <div className="admin-action-row">
+                        <button
+                          className="pill pill-primary"
+                          type="button"
+                          onClick={() => {
+                            setSection("create");
+                            setDraft({
+                              id: nextEvent.id,
+                              slug: nextEvent.slug,
+                              title: nextEvent.title,
+                              dateLabel: nextEvent.dateLabel,
+                              startsAt: new Date(nextEvent.startsAt)
+                                .toISOString()
+                                .slice(0, 16),
+                              endsAt: nextEvent.endsAt
+                                ? new Date(nextEvent.endsAt)
+                                    .toISOString()
+                                    .slice(0, 16)
+                                : "",
+                              venue: nextEvent.venue,
+                              venueAddress: nextEvent.venueAddress ?? "",
+                              timeLabel: nextEvent.timeLabel,
+                              capacity: nextEvent.capacity?.toString() ?? "",
+                              imageUrl: nextEvent.imageUrl ?? "",
+                              imageAlt: nextEvent.imageAlt ?? "",
+                              description: nextEvent.description,
+                              activities: nextEvent.activities,
+                              isPublished: Boolean(nextEvent.isPublished),
+                            });
+                          }}
+                        >
+                          Manage event <ArrowRight size={15} />
+                        </button>
+                        <Link
+                          className="pill pill-outline"
+                          href={`/events#event-${nextEvent.slug}`}
+                        >
+                          View public page <ArrowRight size={15} />
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ) : (
