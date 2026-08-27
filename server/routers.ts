@@ -27,6 +27,7 @@ import {
   updateEventRegistrationStatus,
   insertEvent,
   findEventRegistration,
+  getAdminDashboardStats,
   subscribeNewsletter,
 } from "./db";
 
@@ -113,6 +114,7 @@ function rejectIfBlocked(body: string) {
 export const appRouter = router({
   system: systemRouter,
   admin: router({
+    dashboard: adminProcedure.query(() => getAdminDashboardStats()),
     events: adminProcedure.query(() => listAdminEvents()),
     createEvent: adminProcedure
       .input(eventAdminSchema)

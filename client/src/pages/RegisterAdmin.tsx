@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Image,
   LayoutDashboard,
+  Mail,
   Plus,
   Save,
   Users,
@@ -338,6 +339,9 @@ function AdminPage() {
   const applicants = trpc.admin.registrations.useQuery(undefined, {
     enabled: user?.role === "admin",
   });
+  const dashboard = trpc.admin.dashboard.useQuery(undefined, {
+    enabled: user?.role === "admin",
+  });
   const createEvent = trpc.admin.createEvent.useMutation({
     onSuccess: result => {
       setMessage(result.message);
@@ -359,6 +363,9 @@ function AdminPage() {
   });
   const confirmed =
     applicants.data?.filter(item => item.status === "confirmed").length ?? 0;
+  const nextEvent = events.data
+    ?.filter(event => event.startsAt > Date.now() && event.isPublished)
+    .sort((a, b) => a.startsAt - b.startsAt)[0];
   const submitEvent = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const payload = {
@@ -448,23 +455,214 @@ function AdminPage() {
           </p>
         )}
         {section === "overview" && (
-          <div className="admin-stat-grid">
-            <article>
-              <ClipboardList size={20} />
-              <strong>{events.data?.length ?? 0}</strong>
-              <span>Total events</span>
-            </article>
-            <article>
-              <Users size={20} />
-              <strong>{confirmed}</strong>
-              <span>Confirmed applicants</span>
-            </article>
-            <article>
-              <Image size={20} />
-              <strong>Local</strong>
-              <span>Clone-ready media</span>
-            </article>
-          </div>
+          <>
+            <div className="admin-stat-grid admin-stat-grid-six">
+              {[
+                [
+                  ClipboardList,
+                  dashboard.data?.upcomingEvents ?? 0,
+                  "Upcoming events",
+                ],
+                [Users, dashboard.data?.totalRsvps ?? confirmed, "Total RSVPs"],
+                [
+                  Users,
+                  dashboard.data?.pendingApplicants ??
+                    applicants.data?.length ??
+                    0,
+                  "Applicants",
+                ],
+                [ClipboardList, dashboard.data?.wallNotes ?? 0, "Wall notes"],
+                [
+                  LayoutDashboard,
+                  dashboard.data?.passionProjects ?? 0,
+                  "Passion projects",
+                ],
+                [
+                  Mail,
+                  dashboard.data?.newsletterSubscribers ?? 0,
+                  "Newsletter subscribers",
+                ],
+              ].map(([Icon, value, label]) => {
+                const MetricIcon = Icon as typeof ClipboardList;
+                return (
+                  <article key={label as string}>
+                    <MetricIcon size={20} />
+                    <strong>{value as number}</strong>
+                    <span>{label as string}</span>
+                  </article>
+                );
+              })}
+            </div>
+            <div className="admin-overview-grid">
+              <section className="admin-card admin-next-gathering">
+                <div className="admin-card-heading">
+                  <div>
+                    <p className="section-kicker">next gathering</p>
+                    <h2>{nextEvent?.title ?? "No upcoming gathering"}</h2>
+                  </div>
+                  {nextEvent && (
+                    <span className="admin-badge">{nextEvent.dateLabel}</span>
+                  )}
+                </div>
+                {nextEvent ? (
+                  <>
+                    <p className="admin-next-meta">
+                      {nextEvent.venue} · {nextEvent.timeLabel}
+                    </p>
+                    <p>{nextEvent.description}</p>
+                    <div className="admin-action-row">
+                      <button
+                        className="pill pill-primary"
+                        type="button"
+                        onClick={() => {
+                          setSection("events");
+                          setDraft({
+                            id: nextEvent.id,
+                            slug: nextEvent.slug,
+                            title: nextEvent.title,
+                            dateLabel: nextEvent.dateLabel,
+                            startsAt: new Date(nextEvent.startsAt)
+                              .toISOString()
+                              .slice(0, 16),
+                            endsAt: nextEvent.endsAt
+                              ? new Date(nextEvent.endsAt)
+                                  .toISOString()
+                                  .slice(0, 16)
+                              : "",
+                            venue: nextEvent.venue,
+                            venueAddress: nextEvent.venueAddress ?? "",
+                            timeLabel: nextEvent.timeLabel,
+                            capacity: nextEvent.capacity?.toString() ?? "",
+                            imageUrl: nextEvent.imageUrl ?? "",
+                            imageAlt: nextEvent.imageAlt ?? "",
+                            description: nextEvent.description,
+                            activities: nextEvent.activities,
+                            isPublished: Boolean(nextEvent.isPublished),
+                          });
+                        }}
+                      >
+                        Manage event <ArrowRight size={15} />
+                      </button>
+                      <Link
+                        className="pill pill-outline"
+                        href={`/events#event-${nextEvent.slug}`}
+                      >
+                        View public page <ArrowRight size={15} />
+                      </Link>
+                    </div>
+                  </>
+                ) : (
+                  <p className="admin-empty">
+                    Create your first gathering from the Events tab.
+                  </p>
+                )}
+              </section>
+              <section className="admin-card admin-activity-panel">
+                <div className="admin-card-heading">
+                  <h2>Recent activity</h2>
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => setSection("applicants")}
+                  >
+                    View all
+                  </button>
+                </div>
+                {applicants.data?.slice(0, 5).map(applicant => (
+                  <div className="admin-activity-row" key={applicant.id}>
+                    <span className="activity-dot">
+                      <Users size={15} />
+                    </span>
+                    <span>
+                      <strong>{applicant.name} submitted an RSVP</strong>
+                      <small>
+                        {applicant.eventSlug} ·{" "}
+                        {new Date(applicant.createdAt).toLocaleDateString()}
+                      </small>
+                    </span>
+                    <small>{applicant.status}</small>
+                  </div>
+                ))}
+                {!applicants.data?.length && (
+                  <p className="admin-empty">
+                    No recent applicant activity yet.
+                  </p>
+                )}
+              </section>
+            </div>
+            <div className="admin-lower-grid">
+              <section className="admin-card">
+                <div className="admin-card-heading">
+                  <h2>Recent RSVPs</h2>
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => setSection("applicants")}
+                  >
+                    View all
+                  </button>
+                </div>
+                {applicants.data?.slice(0, 3).map(applicant => (
+                  <div className="admin-list-row" key={applicant.id}>
+                    <span>
+                      <strong>{applicant.name}</strong>
+                      <small>{applicant.eventSlug}</small>
+                    </span>
+                    <small>{applicant.status}</small>
+                  </div>
+                ))}
+                {!applicants.data?.length && (
+                  <p className="admin-empty">No registrations yet.</p>
+                )}
+              </section>
+              <section className="admin-card">
+                <div className="admin-card-heading">
+                  <h2>Wall activity</h2>
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => setSection("content")}
+                  >
+                    View all
+                  </button>
+                </div>
+                <p className="admin-empty">
+                  {dashboard.data?.wallNotes
+                    ? `${dashboard.data.wallNotes} notes are currently in the Wall records.`
+                    : "No Wall notes have been submitted yet."}
+                </p>
+              </section>
+              <section className="admin-card">
+                <div className="admin-card-heading">
+                  <h2>Content needing attention</h2>
+                  <button
+                    className="text-button"
+                    type="button"
+                    onClick={() => setSection("content")}
+                  >
+                    View all
+                  </button>
+                </div>
+                <div className="admin-list-row">
+                  <span>
+                    <strong>Open moderation reports</strong>
+                    <small>Wall and project review queue</small>
+                  </span>
+                  <b>{dashboard.data?.openReports ?? 0}</b>
+                </div>
+                <div className="admin-list-row">
+                  <span>
+                    <strong>Draft events</strong>
+                    <small>Not visible publicly</small>
+                  </span>
+                  <b>
+                    {events.data?.filter(event => !event.isPublished).length ??
+                      0}
+                  </b>
+                </div>
+              </section>
+            </div>
+          </>
         )}
         {section === "events" && (
           <div className="admin-two-column">

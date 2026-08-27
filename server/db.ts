@@ -80,6 +80,51 @@ export async function getUserByOpenId(openId: string) {
 const APPROVED = "approved" as const;
 const PENDING = "pending" as const;
 
+export async function getAdminDashboardStats() {
+  const db = await getDb();
+  if (!db)
+    return {
+      upcomingEvents: 0,
+      totalRsvps: 0,
+      pendingApplicants: 0,
+      wallNotes: 0,
+      passionProjects: 0,
+      newsletterSubscribers: 0,
+      openReports: 0,
+    };
+  const [upcoming, rsvps, applicants, notes, projects, subscribers, reports] =
+    await Promise.all([
+      db
+        .select({ total: sql<number>`count(*)` })
+        .from(events)
+        .where(and(eq(events.isPublished, 1), gt(events.startsAt, Date.now()))),
+      db
+        .select({ total: sql<number>`count(*)` })
+        .from(eventRegistrations)
+        .where(eq(eventRegistrations.status, "confirmed")),
+      db.select({ total: sql<number>`count(*)` }).from(eventRegistrations),
+      db.select({ total: sql<number>`count(*)` }).from(wallNotes),
+      db.select({ total: sql<number>`count(*)` }).from(projectUpdates),
+      db
+        .select({ total: sql<number>`count(*)` })
+        .from(newsletterSubscribers)
+        .where(eq(newsletterSubscribers.status, "subscribed")),
+      db
+        .select({ total: sql<number>`count(*)` })
+        .from(moderationReports)
+        .where(eq(moderationReports.status, "open")),
+    ]);
+  return {
+    upcomingEvents: Number(upcoming[0]?.total ?? 0),
+    totalRsvps: Number(rsvps[0]?.total ?? 0),
+    pendingApplicants: Number(applicants[0]?.total ?? 0),
+    wallNotes: Number(notes[0]?.total ?? 0),
+    passionProjects: Number(projects[0]?.total ?? 0),
+    newsletterSubscribers: Number(subscribers[0]?.total ?? 0),
+    openReports: Number(reports[0]?.total ?? 0),
+  };
+}
+
 export async function listAdminEvents() {
   const db = await getDb();
   if (!db) return [];

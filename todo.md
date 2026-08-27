@@ -276,3 +276,12 @@
 - [x] Make the clicked Last time at Tagpuan image fill the lightbox photo frame instead of leaving unused letterbox space.
 - [x] Preserve the scrapbook border, caption controls, close button, previous/next navigation, and image accessibility labels.
 - [x] Verify the lightbox image fill on desktop and mobile, then run typecheck, tests, formatting, and production build.
+
+## Reference-Aligned Admin Dashboard Redesign
+
+- [x] Rework the admin sidebar with Tagpuan branding, grouped navigation, active Overview state, and account footer.
+- [x] Rebuild the overview with six metric cards: upcoming events, total RSVPs, pending applicants, Wall notes, passion projects, and newsletter subscribers.
+- [x] Add a reference-aligned Next Gathering feature panel with real event data and event management/public-page actions.
+- [x] Add Recent Activity, Recent RSVPs, Wall Activity, and Content Needing Attention dashboard panels using real data or honest empty states.
+- [x] Preserve admin-only access and existing Events, Applicants, and Content & Media management actions.
+- [x] Verify desktop/mobile visual parity, avoid fabricated community records, then run typecheck, tests, formatting, and production build.

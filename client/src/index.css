@@ -3118,3 +3118,112 @@ select:focus-visible {
     padding-inline: 10px;
   }
 }
+
+/* Reference-aligned admin dashboard composition */
+.admin-stat-grid-six {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 16px;
+}
+.admin-overview-grid {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr;
+  gap: 22px;
+  margin-top: 24px;
+}
+.admin-next-gathering {
+  position: relative;
+  overflow: hidden;
+}
+.admin-next-gathering::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(
+    circle at top right,
+    rgba(196, 91, 52, 0.08),
+    transparent 70%
+  );
+  pointer-events: none;
+}
+.admin-badge {
+  padding: 5px 10px;
+  background: var(--woven-tan);
+  color: var(--espresso);
+  font:
+    700 0.68rem "DM Mono",
+    monospace;
+  text-transform: uppercase;
+}
+.admin-next-meta {
+  margin: -8px 0 14px;
+  color: var(--terracotta-deep);
+  font-weight: 700;
+  font-size: 0.88rem;
+}
+.admin-action-row {
+  display: flex;
+  gap: 12px;
+  margin-top: 24px;
+}
+.admin-activity-row,
+.admin-list-row {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-top: 1px dotted var(--line);
+}
+.admin-activity-row:first-of-type,
+.admin-list-row:first-of-type {
+  border-top: 0;
+  padding-top: 4px;
+}
+.activity-dot {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  background: var(--paper);
+  border-radius: 50%;
+  color: var(--espresso);
+}
+.admin-activity-row > span:not(.activity-dot),
+.admin-list-row > span {
+  flex: 1;
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+.admin-activity-row strong,
+.admin-list-row strong {
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-activity-row small,
+.admin-list-row small {
+  color: var(--ink-muted);
+  font-size: 0.74rem;
+}
+.admin-lower-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 22px;
+  margin-top: 22px;
+}
+.admin-empty {
+  margin: 12px 0;
+  color: var(--ink-muted);
+  font-size: 0.82rem;
+  font-style: italic;
+}
+@media (max-width: 1000px) {
+  .admin-overview-grid {
+    grid-template-columns: 1fr;
+  }
+}
