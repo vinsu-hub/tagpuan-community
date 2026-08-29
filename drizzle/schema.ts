@@ -238,3 +238,44 @@ export const venuePins = mysqlTable("venuePins", {
 
 export type VenuePin = typeof venuePins.$inferSelect;
 export type InsertVenuePin = typeof venuePins.$inferInsert;
+
+/** "Hear Me Out" submissions — community voice channel managed from the admin panel. */
+export const hearMeOutSubmissions = mysqlTable("hearMeOutSubmissions", {
+  id: int("id").autoincrement().primaryKey(),
+  subject: varchar("subject", { length: 240 }).notNull(),
+  sender: varchar("sender", { length: 120 }),
+  category: mysqlEnum("category", [
+    "Suggestion",
+    "Appreciation",
+    "Idea",
+    "Ask",
+  ])
+    .default("Suggestion")
+    .notNull(),
+  excerpt: text("excerpt"),
+  status: mysqlEnum("status", ["new", "in_review", "published", "archived"])
+    .default("new")
+    .notNull(),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull(),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
+});
+
+export type HearMeOutSubmission = typeof hearMeOutSubmissions.$inferSelect;
+export type InsertHearMeOutSubmission =
+  typeof hearMeOutSubmissions.$inferInsert;
+
+/** Newsletter campaigns — sent + draft notes managed from the admin panel. */
+export const newsletterCampaigns = mysqlTable("newsletterCampaigns", {
+  id: int("id").autoincrement().primaryKey(),
+  subject: varchar("subject", { length: 240 }).notNull(),
+  audience: varchar("audience", { length: 120 }).default("All subscribers"),
+  recipients: int("recipients").default(0).notNull(),
+  body: text("body"),
+  status: mysqlEnum("status", ["draft", "sent"]).default("draft").notNull(),
+  sentAt: bigint("sentAt", { mode: "number" }),
+  createdAt: bigint("createdAt", { mode: "number" }).notNull(),
+  updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
+});
+
+export type NewsletterCampaign = typeof newsletterCampaigns.$inferSelect;
+export type InsertNewsletterCampaign = typeof newsletterCampaigns.$inferInsert;

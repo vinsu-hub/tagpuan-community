@@ -3,14 +3,20 @@ import { drizzle } from "drizzle-orm/mysql2";
 import {
   events,
   eventRegistrations,
+  hearMeOutSubmissions,
   InsertEvent,
   InsertEventRegistration,
+  InsertHearMeOutSubmission,
+  InsertMemberSpotlight,
+  InsertNewsletterCampaign,
   InsertNewsletterSubscriber,
   InsertProjectUpdate,
+  InsertRecapPhoto,
   InsertUser,
   InsertWallNote,
   memberSpotlights,
   moderationReports,
+  newsletterCampaigns,
   newsletterSubscribers,
   projectUpdates,
   recapPhotos,
@@ -447,3 +453,177 @@ export async function subscribeNewsletter(
     });
   return true;
 }
+
+type WallStatus = "pending" | "approved" | "rejected";
+type ProjectStatus = "pending" | "approved" | "rejected";
+type ReportStatus = "open" | "reviewed" | "dismissed";
+type SpotlightStatus = boolean;
+type HearMeOutStatus = "new" | "in_review" | "published" | "archived";
+
+export async function listWallNotesForModeration() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(wallNotes).orderBy(desc(wallNotes.createdAt));
+}
+
+export async function updateWallNoteStatus(id: number, status: WallStatus) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(wallNotes)
+    .set({ status, updatedAt: Date.now() })
+    .where(eq(wallNotes.id, id));
+}
+
+export async function listProjectUpdatesForModeration() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(projectUpdates).orderBy(desc(projectUpdates.createdAt));
+}
+
+export async function updateProjectUpdateStatus(id: number, status: ProjectStatus) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(projectUpdates)
+    .set({ status, updatedAt: Date.now() })
+    .where(eq(projectUpdates.id, id));
+}
+
+export async function listModerationReports() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(moderationReports).orderBy(desc(moderationReports.createdAt));
+}
+
+export async function updateModerationReportStatus(id: number, status: ReportStatus) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(moderationReports)
+    .set({ status })
+    .where(eq(moderationReports.id, id));
+}
+
+export async function listAllSpotlights() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(memberSpotlights)
+    .orderBy(asc(memberSpotlights.sortOrder));
+}
+
+export async function insertSpotlight(insert: InsertMemberSpotlight) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.insert(memberSpotlights).values(insert);
+  return result[0]?.insertId;
+}
+
+export async function updateSpotlight(
+  id: number,
+  changes: Partial<InsertMemberSpotlight>
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(memberSpotlights)
+    .set({ ...changes, updatedAt: Date.now() })
+    .where(eq(memberSpotlights.id, id));
+}
+
+export async function listRecapPhotosForAdmin() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(recapPhotos).orderBy(desc(recapPhotos.createdAt));
+}
+
+export async function updateRecapPhoto(
+  id: number,
+  changes: Partial<InsertRecapPhoto>
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(recapPhotos)
+    .set({ ...changes, updatedAt: Date.now() })
+    .where(eq(recapPhotos.id, id));
+}
+
+export async function listNewsletterSubscribers() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
+}
+
+export async function listNewsletterCampaigns() {
+  const db = await getDb();
+  if (!db) return [];
+  return db.select().from(newsletterCampaigns).orderBy(desc(newsletterCampaigns.createdAt));
+}
+
+export async function createNewsletterCampaign(campaign: InsertNewsletterCampaign) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.insert(newsletterCampaigns).values(campaign);
+  return result[0]?.insertId;
+}
+
+export async function listHearMeOutSubmissions() {
+  const db = await getDb();
+  if (!db) return [];
+  return db
+    .select()
+    .from(hearMeOutSubmissions)
+    .orderBy(desc(hearMeOutSubmissions.createdAt));
+}
+
+export async function insertHearMeOutSubmission(submission: InsertHearMeOutSubmission) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.insert(hearMeOutSubmissions).values(submission);
+  return result[0]?.insertId;
+}
+
+export async function updateHearMeOutSubmissionStatus(
+  id: number,
+  status: HearMeOutStatus
+) {
+  const db = await getDb();
+  if (!db) return;
+  await db
+    .update(hearMeOutSubmissions)
+    .set({ status, updatedAt: Date.now() })
+    .where(eq(hearMeOutSubmissions.id, id));
+}
+
+export async function listAdminMedia() {
+  const db = await getDb();
+  if (!db) return { photos: [], eventImages: [] };
+  const [photos, eventImages] = await Promise.all([
+    db.select().from(recapPhotos).orderBy(desc(recapPhotos.createdAt)),
+    db.select({ id: events.id, imageUrl: events.imageUrl, imageAlt: events.imageAlt, title: events.title }).from(events),
+  ]);
+  return { photos, eventImages };
+}
+
+export async function insertRecapPhoto(photo: InsertRecapPhoto) {
+  const db = await getDb();
+  if (!db) return undefined;
+  const result = await db.insert(recapPhotos).values(photo);
+  return result[0]?.insertId;
+}
+
+export async function getAdminActivityFeed() {
+  const db = await getDb();
+  if (!db) return { registrations: [], wall: [], projects: [] };
+  const [registrations, wall, projects] = await Promise.all([
+    db.select().from(eventRegistrations).orderBy(desc(eventRegistrations.createdAt)).limit(8),
+    db.select().from(wallNotes).orderBy(desc(wallNotes.createdAt)).limit(8),
+    db.select().from(projectUpdates).orderBy(desc(projectUpdates.createdAt)).limit(8),
+  ]);
+  return { registrations, wall, projects };
+}
+
+export type AdminActivityFeed = Awaited<ReturnType<typeof getAdminActivityFeed>>;

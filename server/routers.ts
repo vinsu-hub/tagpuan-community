@@ -9,26 +9,46 @@ import {
   countRecentBySession,
   countRecentEventRegistrations,
   createReport,
+  createNewsletterCampaign,
+  getAdminActivityFeed,
+  getAdminDashboardStats,
   getNextPublicEvent,
   incrementEventAttendeeCount,
   incrementWallPin,
+  insertEvent,
   insertEventRegistration,
+  insertHearMeOutSubmission,
   insertProjectUpdate,
+  insertRecapPhoto,
+  insertSpotlight,
   insertWallNote,
+  findEventRegistration,
   listAdminEvents,
+  listAdminMedia,
+  listAllSpotlights,
   listEventRegistrations,
+  listHearMeOutSubmissions,
+  listModerationReports,
+  listNewsletterCampaigns,
+  listNewsletterSubscribers,
   listProjectUpdates,
+  listProjectUpdatesForModeration,
   listPublicEvents,
+  listRecapPhotosForAdmin,
   listRecapPhotos,
   listSpotlights,
   listVenuePins,
   listWallNotes,
+  listWallNotesForModeration,
+  subscribeNewsletter,
   updateEvent,
   updateEventRegistrationStatus,
-  insertEvent,
-  findEventRegistration,
-  getAdminDashboardStats,
-  subscribeNewsletter,
+  updateHearMeOutSubmissionStatus,
+  updateModerationReportStatus,
+  updateProjectUpdateStatus,
+  updateRecapPhoto,
+  updateSpotlight,
+  updateWallNoteStatus,
 } from "./db";
 
 const wallSchema = z.object({
@@ -163,6 +183,186 @@ export const appRouter = router({
         await updateEventRegistrationStatus(input.id, input.status);
         return { success: true, message: "Applicant status updated." };
       }),
+    activity: adminProcedure.query(() => getAdminActivityFeed()),
+    wall: router({
+      list: adminProcedure.query(() => listWallNotesForModeration()),
+      updateStatus: adminProcedure
+        .input(
+          z.object({
+            id: z.number().int().positive(),
+            status: z.enum(["pending", "approved", "rejected"]),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await updateWallNoteStatus(input.id, input.status);
+          return { success: true, message: "Wall note updated." };
+        }),
+    }),
+    projects: router({
+      list: adminProcedure.query(() => listProjectUpdatesForModeration()),
+      updateStatus: adminProcedure
+        .input(
+          z.object({
+            id: z.number().int().positive(),
+            status: z.enum(["pending", "approved", "rejected"]),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await updateProjectUpdateStatus(input.id, input.status);
+          return { success: true, message: "Project update updated." };
+        }),
+    }),
+    reports: router({
+      list: adminProcedure.query(() => listModerationReports()),
+      updateStatus: adminProcedure
+        .input(
+          z.object({
+            id: z.number().int().positive(),
+            status: z.enum(["open", "reviewed", "dismissed"]),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await updateModerationReportStatus(input.id, input.status);
+          return { success: true, message: "Report updated." };
+        }),
+    }),
+    spotlights: router({
+      list: adminProcedure.query(() => listAllSpotlights()),
+      create: adminProcedure
+        .input(
+          z.object({
+            name: z.string().trim().min(1).max(120),
+            role: z.string().trim().min(1).max(180),
+            quote: z.string().trim().min(1).max(2000),
+            photoUrl: z.string().url().max(1000).nullable().optional(),
+            photoAlt: z.string().trim().max(240).nullable().optional(),
+            eventTag: z.string().trim().max(180).nullable().optional(),
+            sortOrder: z.number().int().default(0),
+            isPublished: z.number().int().min(0).max(1).default(1),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const now = Date.now();
+          await insertSpotlight({
+            ...input,
+            photoUrl: input.photoUrl || null,
+            photoAlt: input.photoAlt || null,
+            eventTag: input.eventTag || null,
+            createdAt: now,
+            updatedAt: now,
+          });
+          return { success: true, message: "Spotlight created." };
+        }),
+      update: adminProcedure
+        .input(
+          z.object({
+            id: z.number().int().positive(),
+            changes: z
+              .object({
+                name: z.string().trim().min(1).max(120).optional(),
+                role: z.string().trim().min(1).max(180).optional(),
+                quote: z.string().trim().min(1).max(2000).optional(),
+                photoUrl: z.string().url().max(1000).nullable().optional(),
+                photoAlt: z.string().trim().max(240).nullable().optional(),
+                eventTag: z.string().trim().max(180).nullable().optional(),
+                sortOrder: z.number().int().optional(),
+                isPublished: z.number().int().min(0).max(1).optional(),
+              })
+              .partial(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await updateSpotlight(input.id, input.changes);
+          return { success: true, message: "Spotlight updated." };
+        }),
+    }),
+    recaps: router({
+      list: adminProcedure.query(() => listRecapPhotosForAdmin()),
+      update: adminProcedure
+        .input(
+          z.object({
+            id: z.number().int().positive(),
+            changes: z
+              .object({
+                caption: z.string().trim().max(500).nullable().optional(),
+                imageAlt: z.string().trim().max(240).optional(),
+                sortOrder: z.number().int().optional(),
+                isPublished: z.number().int().min(0).max(1).optional(),
+              })
+              .partial(),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await updateRecapPhoto(input.id, input.changes);
+          return { success: true, message: "Recap photo updated." };
+        }),
+      create: adminProcedure
+        .input(
+          z.object({
+            eventId: z.number().int().positive().nullable().optional(),
+            imageUrl: z.string().max(1000),
+            imageAlt: z.string().trim().max(240),
+            caption: z.string().trim().max(500).nullable().optional(),
+            isPublished: z.number().int().min(0).max(1).default(1),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const now = Date.now();
+          await insertRecapPhoto({
+            eventId: input.eventId ?? null,
+            imageUrl: input.imageUrl,
+            imageAlt: input.imageAlt,
+            caption: input.caption || null,
+            isPublished: input.isPublished,
+            sortOrder: 0,
+            createdAt: now,
+            updatedAt: now,
+          });
+          return { success: true, message: "Recap photo added." };
+        }),
+    }),
+    hearMeOut: router({
+      list: adminProcedure.query(() => listHearMeOutSubmissions()),
+      updateStatus: adminProcedure
+        .input(
+          z.object({
+            id: z.number().int().positive(),
+            status: z.enum(["new", "in_review", "published", "archived"]),
+          })
+        )
+        .mutation(async ({ input }) => {
+          await updateHearMeOutSubmissionStatus(input.id, input.status);
+          return { success: true, message: "Submission updated." };
+        }),
+    }),
+    newsletter: router({
+      list: adminProcedure.query(() => listNewsletterSubscribers()),
+      campaigns: adminProcedure.query(() => listNewsletterCampaigns()),
+      createCampaign: adminProcedure
+        .input(
+          z.object({
+            subject: z.string().trim().min(1).max(240),
+            audience: z.string().trim().max(120).default("All subscribers"),
+            body: z.string().trim().max(5000).nullable().optional(),
+            status: z.enum(["draft", "sent"]).default("draft"),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const now = Date.now();
+          await createNewsletterCampaign({
+            subject: input.subject,
+            audience: input.audience,
+            body: input.body || null,
+            status: input.status,
+            recipients: input.status === "sent" ? await listNewsletterSubscribers().then(s => s.length) : 0,
+            sentAt: input.status === "sent" ? now : null,
+            createdAt: now,
+            updatedAt: now,
+          });
+          return { success: true, message: "Campaign saved." };
+        }),
+    }),
+    media: adminProcedure.query(() => listAdminMedia()),
   }),
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -337,6 +537,32 @@ export const appRouter = router({
           updatedAt: Date.now(),
         });
         return { success: true, message: "pinned! we'll write back soon." };
+      }),
+  }),
+  hearMeOut: router({
+    submit: publicProcedure
+      .input(
+        z.object({
+          subject: z.string().trim().min(1).max(240),
+          sender: z.string().trim().max(120).optional(),
+          category: z
+            .enum(["Suggestion", "Appreciation", "Idea", "Ask"])
+            .default("Suggestion"),
+          excerpt: z.string().trim().max(3000).optional(),
+        })
+      )
+      .mutation(async ({ input }) => {
+        const now = Date.now();
+        await insertHearMeOutSubmission({
+          subject: input.subject,
+          sender: input.sender || null,
+          category: input.category,
+          excerpt: input.excerpt || null,
+          status: "new",
+          createdAt: now,
+          updatedAt: now,
+        });
+        return { success: true, message: "Thanks — we've heard you." };
       }),
   }),
 });
