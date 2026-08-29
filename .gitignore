@@ -124,3 +124,6 @@ opencode.json
 # ...but keep these committed:
 !.env.example
 !.env.production
+
+# smoke test output
+smoke-out/
