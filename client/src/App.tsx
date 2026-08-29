@@ -1,4 +1,3 @@
-import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { RegistrationPage } from "@/pages/RegisterAdmin";
@@ -43,7 +42,6 @@ function App() {
     <ErrorBoundary>
       <ThemeProvider defaultTheme="light">
         <TooltipProvider>
-          <Toaster />
           <Router />
         </TooltipProvider>
       </ThemeProvider>

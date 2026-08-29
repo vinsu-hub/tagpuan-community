@@ -1,8 +1,8 @@
 import { createHash } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { systemRouter } from "./_core/systemRouter";
-import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
+import { systemRouter } from "./_core/systemRouter.js";
+import { protectedProcedure, publicProcedure, router } from "./_core/trpc.js";
 import {
   countRecentBySession,
   countRecentEventRegistrations,
@@ -47,7 +47,7 @@ import {
   updateRecapPhoto,
   updateSpotlight,
   updateWallNoteStatus,
-} from "./db";
+} from "./db.js";
 
 const wallSchema = z.object({
   body: z.string().trim().min(1).max(140),

@@ -324,6 +324,12 @@ export function RecapsPage() {
     },
     onError: () => notify("Could not save the recap photo."),
   });
+  const updateRecap = trpc.admin.recaps.update.useMutation({
+    onSettled: async () => {
+      await utils.admin.recaps.list.invalidate();
+    },
+    onError: () => notify("Could not update the recap photo."),
+  });
   const published = data.filter(item => item.isPublished === 1).length;
   const visible = data.filter(item => {
     const matchesTab =
@@ -486,21 +492,32 @@ export function RecapsPage() {
           onClose={() => setSelected(null)}
           actions={
             <>
-              <DrawerAction onClick={() => notify("Recap photo archived.")}>
-                <Archive size={15} /> Archive
+              <DrawerAction
+                onClick={() => {
+                  updateRecap.mutate({
+                    id: selected.id,
+                    changes: { isPublished: 0 },
+                  });
+                  notify("Recap photo hidden.");
+                  setSelected(null);
+                }}
+              >
+                <Archive size={15} /> Hide
               </DrawerAction>
               <DrawerAction
                 primary
-                onClick={() =>
-                  notify(
-                    selected.isPublished === 1
-                      ? "Recap photo is already public."
-                      : "Recap photo published."
-                  )
-                }
+                onClick={() => {
+                  const next = selected.isPublished === 1 ? 0 : 1;
+                  updateRecap.mutate({
+                    id: selected.id,
+                    changes: { isPublished: next },
+                  });
+                  notify(next === 1 ? "Recap photo published." : "Recap photo hidden.");
+                  setSelected(null);
+                }}
               >
                 <Send size={15} />{" "}
-                {selected.isPublished === 1 ? "Published" : "Publish photo"}
+                {selected.isPublished === 1 ? "Unpublish" : "Publish photo"}
               </DrawerAction>
             </>
           }

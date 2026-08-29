@@ -11,8 +11,9 @@ import {
   Sparkles,
   Users,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
+import { useMenuA11y } from "@/hooks/useMenuA11y";
 
 const FACEBOOK_URL = "https://facebook.com/tagpuancommunity";
 const TAGPUAN_LOGO_URL = "/assets/tagpuan/tagpuan-hut.webp";
@@ -66,6 +67,8 @@ function PageFrame({
 }) {
   useScrollReveal();
   const [navOpen, setNavOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  useMenuA11y(navOpen, () => setNavOpen(false), navRef);
   const [location] = useLocation();
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--espresso)]">
@@ -76,7 +79,7 @@ function PageFrame({
         Skip to content
       </a>
       <header className="hero-surface grain-dark" style={{ minHeight: "auto" }}>
-        <nav className="site-nav">
+        <nav className="site-nav" ref={navRef}>
           <a className="brand-lockup" href="/">
             <HutMark size={35} />
           </a>

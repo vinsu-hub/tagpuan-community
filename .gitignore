@@ -121,3 +121,6 @@ opencode.json
 # Vercel
 .vercel
 .env*
+# ...but keep these committed:
+!.env.example
+!.env.production

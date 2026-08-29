@@ -50,6 +50,7 @@ import {
 import { trpc } from "@/lib/trpc";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { ImageUpload } from "@/components/ImageUpload";
+import { useMenuA11y } from "@/hooks/useMenuA11y";
 
 const asset = {
   mark: "/assets/tagpuan/mark.png",
@@ -189,6 +190,7 @@ function EmptyOverviewState({
 function AdminShell({ children }: { children: ReactNode }) {
   const [location, setLocation] = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+  useMenuA11y(mobileOpen, () => setMobileOpen(false));
   const { user, logout } = useAuth();
   const isOverview = location === "/admin" || location === "/admin/";
   const activePath = isOverview ? "/admin" : location;

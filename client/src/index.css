@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fredoka:wght@400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400..700&family=Fredoka:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -1926,7 +1926,7 @@ select:focus-visible {
     position: absolute;
     top: 70px;
     right: 0;
-    display: none;
+    display: flex;
     flex-direction: column;
     align-items: stretch;
     min-width: 190px;
@@ -1934,9 +1934,20 @@ select:focus-visible {
     border: 1px solid rgba(250, 246, 236, 0.18);
     background: rgba(43, 27, 18, 0.96);
     box-shadow: var(--shadow-soft);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition:
+      opacity 0.18s var(--ease-out),
+      transform 0.18s var(--ease-out),
+      visibility 0.18s;
   }
   .nav-links.open {
-    display: flex;
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
   }
   .nav-links a {
     padding: 9px 4px;

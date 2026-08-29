@@ -24,8 +24,8 @@ import {
   users,
   venuePins,
   wallNotes,
-} from "../drizzle/schema";
-import { isAdminEmail } from "./_core/env";
+} from "../drizzle/schema.js";
+import { isAdminEmail } from "./_core/env.js";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 

@@ -1,5 +1,5 @@
-import type { User } from "../../drizzle/schema";
-import { bearerToken, resolveUser } from "./supabaseAuth";
+import type { User } from "../../drizzle/schema.js";
+import { bearerToken, resolveUser } from "./supabaseAuth.js";
 
 export type TrpcContext = {
   user: User | null;

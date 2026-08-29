@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useMenuA11y } from "@/hooks/useMenuA11y";
 import { trpc } from "@/lib/trpc";
 import {
   ArrowDown,
@@ -7,21 +8,16 @@ import {
   Check,
   ChevronLeft,
   ChevronRight,
-  CircleHelp,
   Clock3,
-  Code2,
   Compass,
   ExternalLink,
   Flag,
-  Gamepad2,
   Lightbulb,
   Mail,
   MapPin,
   Menu,
   MessageCircle,
-  Mic2,
   Music2,
-  Palette,
   Pin,
   Plus,
   Send,
@@ -230,6 +226,8 @@ const projectTags = [
 export default function Home() {
   useScrollReveal();
   const [navOpen, setNavOpen] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+  useMenuA11y(navOpen, () => setNavOpen(false), navRef);
   const [ribbonVisible, setRibbonVisible] = useState(true);
   const [wallOpen, setWallOpen] = useState(false);
   const [wallText, setWallText] = useState("");
@@ -265,9 +263,6 @@ export default function Home() {
     "idle" | "success" | "error"
   >("idle");
   const [wallPage, setWallPage] = useState(1);
-  const [icebreaker, setIcebreaker] = useState(
-    "What are you making time for this week?"
-  );
   const lightboxCloseRef = useRef<HTMLButtonElement>(null);
   const lightboxTriggerRef = useRef<HTMLButtonElement>(null);
   const eventModalCloseRef = useRef<HTMLButtonElement>(null);
@@ -285,7 +280,6 @@ export default function Home() {
     trpc.projects.list.useQuery({ page: projectPage, pageSize: 10 });
   const { data: cmsSpotlights } = trpc.content.spotlights.useQuery();
   const { data: cmsRecapPhotos } = trpc.content.recapPhotos.useQuery();
-  const { data: cmsVenuePins } = trpc.content.venuePins.useQuery();
   const wallPinMutation = trpc.wall.pin.useMutation();
   const wallReportMutation = trpc.wall.report.useMutation();
   const projectReportMutation = trpc.projects.report.useMutation();
@@ -551,7 +545,11 @@ export default function Home() {
       </a>
       <header className="hero-surface grain-dark" id="top">
         <div className="hero-content">
-          <nav className="site-nav" aria-label="Primary navigation">
+          <nav
+            className="site-nav"
+            aria-label="Primary navigation"
+            ref={navRef}
+          >
             <a className="brand-lockup" href="#top" aria-label="Tagpuan home">
               <HutMark size={35} />
             </a>

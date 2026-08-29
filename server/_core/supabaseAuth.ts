@@ -1,7 +1,7 @@
 import { createRemoteJWKSet, jwtVerify } from "jose";
-import type { User } from "../../drizzle/schema";
-import * as db from "../db";
-import { ENV, isAdminEmail } from "./env";
+import type { User } from "../../drizzle/schema.js";
+import * as db from "../db.js";
+import { ENV, isAdminEmail } from "./env.js";
 
 type VerifiedToken = { sub: string; email: string | null };
 
