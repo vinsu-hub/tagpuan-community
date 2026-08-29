@@ -120,3 +120,4 @@ opencode.json
 
 # Vercel
 .vercel
+.env*
