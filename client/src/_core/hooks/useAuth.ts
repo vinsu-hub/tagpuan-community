@@ -19,14 +19,19 @@ export function useAuth(options?: UseAuthOptions) {
 
   useEffect(() => {
     let active = true;
+    // getSession() reads the persisted session from storage and is the
+    // authoritative "is there a session?" answer — only it clears the loading
+    // flag. onAuthStateChange can fire an early INITIAL_SESSION(null) before
+    // storage is read; letting that flip sessionLoading caused a redirect race
+    // on hard reloads of /admin.
     supabase.auth.getSession().then(({ data }) => {
       if (!active) return;
       setSession(data.session);
       setSessionLoading(false);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, next) => {
+      if (!active) return;
       setSession(next);
-      setSessionLoading(false);
       utils.auth.me.invalidate();
     });
     return () => {
