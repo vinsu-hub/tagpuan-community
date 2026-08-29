@@ -117,3 +117,6 @@ client/public/__manus__/version.json
 .opencode/
 .claude/
 opencode.json
+
+# Vercel
+.vercel

@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
 import { RegistrationPage } from "@/pages/RegisterAdmin";
 import AdminWorkspace from "./admin/AdminWorkspace";
+import Login from "./pages/Login";
 import "./admin/admin.css";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/people" component={PeoplePage} />
       <Route path="/join" component={JoinPage} />
       <Route path="/register" component={RegistrationPage} />
+      <Route path="/login" component={Login} />
       <Route path="/admin" component={AdminWorkspace} />
       <Route path="/admin/*" component={AdminWorkspace} />
       <Route path="/404" component={NotFound} />

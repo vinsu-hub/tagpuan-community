@@ -1,8 +1,6 @@
 import { createHash } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
-import { COOKIE_NAME } from "@shared/const";
-import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc";
 import {
@@ -86,10 +84,10 @@ function containsBlockedLanguage(value: string) {
   return blockedTerms.some(term => term.test(normalized));
 }
 
-function sessionHash(req: { headers: Record<string, unknown> }) {
-  const forwarded = String(req.headers["x-forwarded-for"] ?? "");
-  const userAgent = String(req.headers["user-agent"] ?? "unknown");
-  return createHash("sha256").update(`${forwarded}|${userAgent}`).digest("hex");
+function sessionHash(ctx: { clientIp: string; userAgent: string }) {
+  return createHash("sha256")
+    .update(`${ctx.clientIp}|${ctx.userAgent}`)
+    .digest("hex");
 }
 
 const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
@@ -354,7 +352,10 @@ export const appRouter = router({
             audience: input.audience,
             body: input.body || null,
             status: input.status,
-            recipients: input.status === "sent" ? await listNewsletterSubscribers().then(s => s.length) : 0,
+            recipients:
+              input.status === "sent"
+                ? await listNewsletterSubscribers().then(s => s.length)
+                : 0,
             sentAt: input.status === "sent" ? now : null,
             createdAt: now,
             updatedAt: now,
@@ -366,11 +367,8 @@ export const appRouter = router({
   }),
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
-    logout: publicProcedure.mutation(({ ctx }) => {
-      const cookieOptions = getSessionCookieOptions(ctx.req);
-      ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return { success: true } as const;
-    }),
+    // Session lives entirely in the Supabase client; sign-out happens there.
+    logout: publicProcedure.mutation(() => ({ success: true }) as const),
   }),
   content: router({
     events: publicProcedure.query(() => listPublicEvents()),
@@ -399,7 +397,7 @@ export const appRouter = router({
       .input(wallSchema)
       .mutation(async ({ ctx, input }) => {
         rejectIfBlocked(input.body);
-        const hash = sessionHash(ctx.req);
+        const hash = sessionHash(ctx);
         if ((await countRecentBySession("wall", hash)) > 0)
           throw new TRPCError({
             code: "TOO_MANY_REQUESTS",
@@ -432,7 +430,7 @@ export const appRouter = router({
         await createReport(
           input.targetType,
           input.targetId,
-          sessionHash(ctx.req),
+          sessionHash(ctx),
           input.reason
         );
         return { success: true, message: "Thanks, we'll take a look." };
@@ -453,7 +451,7 @@ export const appRouter = router({
       .input(projectSchema)
       .mutation(async ({ ctx, input }) => {
         rejectIfBlocked(input.body);
-        const hash = sessionHash(ctx.req);
+        const hash = sessionHash(ctx);
         if ((await countRecentBySession("project", hash)) > 0)
           throw new TRPCError({
             code: "TOO_MANY_REQUESTS",
@@ -481,7 +479,7 @@ export const appRouter = router({
         await createReport(
           input.targetType,
           input.targetId,
-          sessionHash(ctx.req),
+          sessionHash(ctx),
           input.reason
         );
         return { success: true, message: "Thanks, we'll take a look." };
@@ -498,7 +496,7 @@ export const appRouter = router({
             message: "You’re already registered for this Tagpuan gathering.",
           });
         }
-        const hash = sessionHash(ctx.req);
+        const hash = sessionHash(ctx);
         if ((await countRecentEventRegistrations(hash)) > 0) {
           throw new TRPCError({
             code: "TOO_MANY_REQUESTS",

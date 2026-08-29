@@ -1,5 +1,6 @@
 import { and, asc, desc, eq, gt, lt, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
 import {
   events,
   eventRegistrations,
@@ -24,14 +25,16 @@ import {
   venuePins,
   wallNotes,
 } from "../drizzle/schema";
-import { ENV } from "./_core/env";
+import { isAdminEmail } from "./_core/env";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
   if (!_db && process.env.DATABASE_URL) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      // `prepare: false` is required for the Supabase transaction pooler (pgBouncer).
+      const client = postgres(process.env.DATABASE_URL, { prepare: false });
+      _db = drizzle(client);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -57,19 +60,18 @@ export async function upsertUser(user: InsertUser): Promise<void> {
     values.lastSignedIn = user.lastSignedIn;
     updateSet.lastSignedIn = user.lastSignedIn;
   }
-  if (user.role !== undefined) {
-    values.role = user.role;
-    updateSet.role = user.role;
-  } else if (user.openId === ENV.ownerOpenId) {
-    values.role = "admin";
-    updateSet.role = "admin";
+  const effectiveRole =
+    user.role ?? (isAdminEmail(user.email) ? "admin" : undefined);
+  if (effectiveRole !== undefined) {
+    values.role = effectiveRole;
+    updateSet.role = effectiveRole;
   }
   if (!values.lastSignedIn) values.lastSignedIn = new Date();
   if (Object.keys(updateSet).length === 0) updateSet.lastSignedIn = new Date();
   await db
     .insert(users)
     .values(values)
-    .onDuplicateKeyUpdate({ set: updateSet });
+    .onConflictDoUpdate({ target: users.openId, set: updateSet });
 }
 
 export async function getUserByOpenId(openId: string) {
@@ -161,8 +163,11 @@ export async function listAdminEvents() {
 export async function insertEvent(event: InsertEvent) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(events).values(event);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(events)
+    .values(event)
+    .returning({ id: events.id });
+  return result[0]?.id;
 }
 
 export async function updateEvent(id: number, event: Partial<InsertEvent>) {
@@ -273,8 +278,11 @@ export async function countRecentBySession(
 export async function insertWallNote(note: InsertWallNote) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(wallNotes).values(note);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(wallNotes)
+    .values(note)
+    .returning({ id: wallNotes.id });
+  return result[0]?.id;
 }
 
 export async function incrementWallPin(id: number) {
@@ -352,8 +360,11 @@ export async function listProjectUpdates(limit: number, offset: number) {
 export async function insertProjectUpdate(update: InsertProjectUpdate) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(projectUpdates).values(update);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(projectUpdates)
+    .values(update)
+    .returning({ id: projectUpdates.id });
+  return result[0]?.id;
 }
 
 export async function listSpotlights() {
@@ -436,8 +447,11 @@ export async function insertEventRegistration(
 ) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(eventRegistrations).values(registration);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(eventRegistrations)
+    .values(registration)
+    .returning({ id: eventRegistrations.id });
+  return result[0]?.id;
 }
 
 export async function subscribeNewsletter(
@@ -448,7 +462,8 @@ export async function subscribeNewsletter(
   await db
     .insert(newsletterSubscribers)
     .values(subscriber)
-    .onDuplicateKeyUpdate({
+    .onConflictDoUpdate({
+      target: newsletterSubscribers.email,
       set: { status: "subscribed", updatedAt: Date.now() },
     });
   return true;
@@ -478,10 +493,16 @@ export async function updateWallNoteStatus(id: number, status: WallStatus) {
 export async function listProjectUpdatesForModeration() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(projectUpdates).orderBy(desc(projectUpdates.createdAt));
+  return db
+    .select()
+    .from(projectUpdates)
+    .orderBy(desc(projectUpdates.createdAt));
 }
 
-export async function updateProjectUpdateStatus(id: number, status: ProjectStatus) {
+export async function updateProjectUpdateStatus(
+  id: number,
+  status: ProjectStatus
+) {
   const db = await getDb();
   if (!db) return;
   await db
@@ -493,10 +514,16 @@ export async function updateProjectUpdateStatus(id: number, status: ProjectStatu
 export async function listModerationReports() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(moderationReports).orderBy(desc(moderationReports.createdAt));
+  return db
+    .select()
+    .from(moderationReports)
+    .orderBy(desc(moderationReports.createdAt));
 }
 
-export async function updateModerationReportStatus(id: number, status: ReportStatus) {
+export async function updateModerationReportStatus(
+  id: number,
+  status: ReportStatus
+) {
   const db = await getDb();
   if (!db) return;
   await db
@@ -517,8 +544,11 @@ export async function listAllSpotlights() {
 export async function insertSpotlight(insert: InsertMemberSpotlight) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(memberSpotlights).values(insert);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(memberSpotlights)
+    .values(insert)
+    .returning({ id: memberSpotlights.id });
+  return result[0]?.id;
 }
 
 export async function updateSpotlight(
@@ -554,20 +584,31 @@ export async function updateRecapPhoto(
 export async function listNewsletterSubscribers() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(newsletterSubscribers).orderBy(desc(newsletterSubscribers.createdAt));
+  return db
+    .select()
+    .from(newsletterSubscribers)
+    .orderBy(desc(newsletterSubscribers.createdAt));
 }
 
 export async function listNewsletterCampaigns() {
   const db = await getDb();
   if (!db) return [];
-  return db.select().from(newsletterCampaigns).orderBy(desc(newsletterCampaigns.createdAt));
+  return db
+    .select()
+    .from(newsletterCampaigns)
+    .orderBy(desc(newsletterCampaigns.createdAt));
 }
 
-export async function createNewsletterCampaign(campaign: InsertNewsletterCampaign) {
+export async function createNewsletterCampaign(
+  campaign: InsertNewsletterCampaign
+) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(newsletterCampaigns).values(campaign);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(newsletterCampaigns)
+    .values(campaign)
+    .returning({ id: newsletterCampaigns.id });
+  return result[0]?.id;
 }
 
 export async function listHearMeOutSubmissions() {
@@ -579,11 +620,16 @@ export async function listHearMeOutSubmissions() {
     .orderBy(desc(hearMeOutSubmissions.createdAt));
 }
 
-export async function insertHearMeOutSubmission(submission: InsertHearMeOutSubmission) {
+export async function insertHearMeOutSubmission(
+  submission: InsertHearMeOutSubmission
+) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(hearMeOutSubmissions).values(submission);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(hearMeOutSubmissions)
+    .values(submission)
+    .returning({ id: hearMeOutSubmissions.id });
+  return result[0]?.id;
 }
 
 export async function updateHearMeOutSubmissionStatus(
@@ -603,7 +649,14 @@ export async function listAdminMedia() {
   if (!db) return { photos: [], eventImages: [] };
   const [photos, eventImages] = await Promise.all([
     db.select().from(recapPhotos).orderBy(desc(recapPhotos.createdAt)),
-    db.select({ id: events.id, imageUrl: events.imageUrl, imageAlt: events.imageAlt, title: events.title }).from(events),
+    db
+      .select({
+        id: events.id,
+        imageUrl: events.imageUrl,
+        imageAlt: events.imageAlt,
+        title: events.title,
+      })
+      .from(events),
   ]);
   return { photos, eventImages };
 }
@@ -611,19 +664,32 @@ export async function listAdminMedia() {
 export async function insertRecapPhoto(photo: InsertRecapPhoto) {
   const db = await getDb();
   if (!db) return undefined;
-  const result = await db.insert(recapPhotos).values(photo);
-  return result[0]?.insertId;
+  const result = await db
+    .insert(recapPhotos)
+    .values(photo)
+    .returning({ id: recapPhotos.id });
+  return result[0]?.id;
 }
 
 export async function getAdminActivityFeed() {
   const db = await getDb();
   if (!db) return { registrations: [], wall: [], projects: [] };
   const [registrations, wall, projects] = await Promise.all([
-    db.select().from(eventRegistrations).orderBy(desc(eventRegistrations.createdAt)).limit(8),
+    db
+      .select()
+      .from(eventRegistrations)
+      .orderBy(desc(eventRegistrations.createdAt))
+      .limit(8),
     db.select().from(wallNotes).orderBy(desc(wallNotes.createdAt)).limit(8),
-    db.select().from(projectUpdates).orderBy(desc(projectUpdates.createdAt)).limit(8),
+    db
+      .select()
+      .from(projectUpdates)
+      .orderBy(desc(projectUpdates.createdAt))
+      .limit(8),
   ]);
   return { registrations, wall, projects };
 }
 
-export type AdminActivityFeed = Awaited<ReturnType<typeof getAdminActivityFeed>>;
+export type AdminActivityFeed = Awaited<
+  ReturnType<typeof getAdminActivityFeed>
+>;

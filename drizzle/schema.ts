@@ -1,34 +1,40 @@
 import {
   bigint,
   index,
-  int,
-  mysqlEnum,
-  mysqlTable,
+  integer,
+  pgTable,
+  serial,
   text,
   timestamp,
   varchar,
-} from "drizzle-orm/mysql-core";
+} from "drizzle-orm/pg-core";
 
-/** Core user table backing the existing Manus auth flow. */
-export const users = mysqlTable("users", {
-  id: int("id").autoincrement().primaryKey(),
+/** Core user table. `openId` holds the Supabase Auth user id (JWT `sub`). */
+export const users = pgTable("users", {
+  id: serial("id").primaryKey(),
   openId: varchar("openId", { length: 64 }).notNull().unique(),
   name: text("name"),
   email: varchar("email", { length: 320 }),
   loginMethod: varchar("loginMethod", { length: 64 }),
-  role: mysqlEnum("role", ["user", "admin"]).default("user").notNull(),
+  role: varchar("role", { length: 16 })
+    .$type<"user" | "admin">()
+    .default("user")
+    .notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+  updatedAt: timestamp("updatedAt")
+    .defaultNow()
+    .$onUpdate(() => new Date())
+    .notNull(),
   lastSignedIn: timestamp("lastSignedIn").defaultNow().notNull(),
 });
 
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-export const events = mysqlTable(
+export const events = pgTable(
   "events",
   {
-    id: int("id").autoincrement().primaryKey(),
+    id: serial("id").primaryKey(),
     slug: varchar("slug", { length: 120 }).notNull().unique(),
     title: varchar("title", { length: 160 }).notNull(),
     dateLabel: varchar("dateLabel", { length: 80 }).notNull(),
@@ -38,13 +44,13 @@ export const events = mysqlTable(
     venueAddress: text("venueAddress"),
     timeLabel: varchar("timeLabel", { length: 80 }).notNull(),
     rsvpUrl: text("rsvpUrl").notNull(),
-    attendeeCount: int("attendeeCount").default(0).notNull(),
-    capacity: int("capacity"),
+    attendeeCount: integer("attendeeCount").default(0).notNull(),
+    capacity: integer("capacity"),
     imageUrl: text("imageUrl"),
     imageAlt: text("imageAlt"),
     description: text("description").notNull(),
     activities: text("activities").notNull(),
-    isPublished: int("isPublished").default(1).notNull(),
+    isPublished: integer("isPublished").default(1).notNull(),
     createdAt: bigint("createdAt", { mode: "number" }).notNull(),
     updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
   },
@@ -57,11 +63,11 @@ export const events = mysqlTable(
 export type Event = typeof events.$inferSelect;
 export type InsertEvent = typeof events.$inferInsert;
 
-export const eventRegistrations = mysqlTable(
+export const eventRegistrations = pgTable(
   "eventRegistrations",
   {
-    id: int("id").autoincrement().primaryKey(),
-    eventId: int("eventId"),
+    id: serial("id").primaryKey(),
+    eventId: integer("eventId"),
     eventSlug: varchar("eventSlug", { length: 120 }).notNull(),
     name: varchar("name", { length: 120 }).notNull(),
     email: varchar("email", { length: 320 }).notNull(),
@@ -71,9 +77,10 @@ export const eventRegistrations = mysqlTable(
     heardFrom: varchar("heardFrom", { length: 120 }).notNull(),
     hotTake: text("hotTake"),
     nightSuggestion: text("nightSuggestion"),
-    photoConsent: int("photoConsent").default(1).notNull(),
+    photoConsent: integer("photoConsent").default(1).notNull(),
     sessionHash: varchar("sessionHash", { length: 64 }).notNull(),
-    status: mysqlEnum("status", ["confirmed", "cancelled"])
+    status: varchar("status", { length: 16 })
+      .$type<"confirmed" | "cancelled">()
       .default("confirmed")
       .notNull(),
     createdAt: bigint("createdAt", { mode: "number" }).notNull(),
@@ -88,20 +95,22 @@ export const eventRegistrations = mysqlTable(
 export type EventRegistration = typeof eventRegistrations.$inferSelect;
 export type InsertEventRegistration = typeof eventRegistrations.$inferInsert;
 
-export const wallNotes = mysqlTable(
+export const wallNotes = pgTable(
   "wallNotes",
   {
-    id: int("id").autoincrement().primaryKey(),
+    id: serial("id").primaryKey(),
     body: varchar("body", { length: 140 }).notNull(),
     authorName: varchar("authorName", { length: 100 }),
-    tone: mysqlEnum("tone", ["mustard", "sage", "rose", "bone"])
+    tone: varchar("tone", { length: 16 })
+      .$type<"mustard" | "sage" | "rose" | "bone">()
       .default("mustard")
       .notNull(),
-    status: mysqlEnum("status", ["pending", "approved", "rejected"])
+    status: varchar("status", { length: 16 })
+      .$type<"pending" | "approved" | "rejected">()
       .default("pending")
       .notNull(),
-    pinCount: int("pinCount").default(0).notNull(),
-    reportCount: int("reportCount").default(0).notNull(),
+    pinCount: integer("pinCount").default(0).notNull(),
+    reportCount: integer("reportCount").default(0).notNull(),
     sessionHash: varchar("sessionHash", { length: 128 }).notNull(),
     createdAt: bigint("createdAt", { mode: "number" }).notNull(),
     updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
@@ -118,26 +127,21 @@ export const wallNotes = mysqlTable(
 export type WallNote = typeof wallNotes.$inferSelect;
 export type InsertWallNote = typeof wallNotes.$inferInsert;
 
-export const projectUpdates = mysqlTable(
+export const projectUpdates = pgTable(
   "projectUpdates",
   {
-    id: int("id").autoincrement().primaryKey(),
+    id: serial("id").primaryKey(),
     body: varchar("body", { length: 120 }).notNull(),
     authorName: varchar("authorName", { length: 100 }),
-    tag: mysqlEnum("tag", [
-      "Art",
-      "Tech",
-      "Writing",
-      "Music",
-      "Research",
-      "Other",
-    ])
+    tag: varchar("tag", { length: 16 })
+      .$type<"Art" | "Tech" | "Writing" | "Music" | "Research" | "Other">()
       .default("Other")
       .notNull(),
-    status: mysqlEnum("status", ["pending", "approved", "rejected"])
+    status: varchar("status", { length: 16 })
+      .$type<"pending" | "approved" | "rejected">()
       .default("pending")
       .notNull(),
-    reportCount: int("reportCount").default(0).notNull(),
+    reportCount: integer("reportCount").default(0).notNull(),
     sessionHash: varchar("sessionHash", { length: 128 }).notNull(),
     createdAt: bigint("createdAt", { mode: "number" }).notNull(),
     updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
@@ -154,17 +158,20 @@ export const projectUpdates = mysqlTable(
 export type ProjectUpdate = typeof projectUpdates.$inferSelect;
 export type InsertProjectUpdate = typeof projectUpdates.$inferInsert;
 
-export const moderationReports = mysqlTable(
+export const moderationReports = pgTable(
   "moderationReports",
   {
-    id: int("id").autoincrement().primaryKey(),
-    targetType: mysqlEnum("targetType", ["wall", "project"]).notNull(),
-    targetId: int("targetId").notNull(),
+    id: serial("id").primaryKey(),
+    targetType: varchar("targetType", { length: 16 })
+      .$type<"wall" | "project">()
+      .notNull(),
+    targetId: integer("targetId").notNull(),
     reporterSessionHash: varchar("reporterSessionHash", {
       length: 128,
     }).notNull(),
     reason: varchar("reason", { length: 240 }),
-    status: mysqlEnum("status", ["open", "reviewed", "dismissed"])
+    status: varchar("status", { length: 16 })
+      .$type<"open" | "reviewed" | "dismissed">()
       .default("open")
       .notNull(),
     createdAt: bigint("createdAt", { mode: "number" }).notNull(),
@@ -180,16 +187,16 @@ export const moderationReports = mysqlTable(
 export type ModerationReport = typeof moderationReports.$inferSelect;
 export type InsertModerationReport = typeof moderationReports.$inferInsert;
 
-export const memberSpotlights = mysqlTable("memberSpotlights", {
-  id: int("id").autoincrement().primaryKey(),
+export const memberSpotlights = pgTable("memberSpotlights", {
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 120 }).notNull(),
   role: varchar("role", { length: 180 }).notNull(),
   quote: text("quote").notNull(),
   photoUrl: text("photoUrl"),
   photoAlt: text("photoAlt"),
   eventTag: varchar("eventTag", { length: 180 }),
-  sortOrder: int("sortOrder").default(0).notNull(),
-  isPublished: int("isPublished").default(1).notNull(),
+  sortOrder: integer("sortOrder").default(0).notNull(),
+  isPublished: integer("isPublished").default(1).notNull(),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 });
@@ -197,14 +204,14 @@ export const memberSpotlights = mysqlTable("memberSpotlights", {
 export type MemberSpotlight = typeof memberSpotlights.$inferSelect;
 export type InsertMemberSpotlight = typeof memberSpotlights.$inferInsert;
 
-export const recapPhotos = mysqlTable("recapPhotos", {
-  id: int("id").autoincrement().primaryKey(),
-  eventId: int("eventId"),
+export const recapPhotos = pgTable("recapPhotos", {
+  id: serial("id").primaryKey(),
+  eventId: integer("eventId"),
   imageUrl: text("imageUrl").notNull(),
   imageAlt: text("imageAlt").notNull(),
   caption: text("caption"),
-  sortOrder: int("sortOrder").default(0).notNull(),
-  isPublished: int("isPublished").default(1).notNull(),
+  sortOrder: integer("sortOrder").default(0).notNull(),
+  isPublished: integer("isPublished").default(1).notNull(),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 });
@@ -212,10 +219,11 @@ export const recapPhotos = mysqlTable("recapPhotos", {
 export type RecapPhoto = typeof recapPhotos.$inferSelect;
 export type InsertRecapPhoto = typeof recapPhotos.$inferInsert;
 
-export const newsletterSubscribers = mysqlTable("newsletterSubscribers", {
-  id: int("id").autoincrement().primaryKey(),
+export const newsletterSubscribers = pgTable("newsletterSubscribers", {
+  id: serial("id").primaryKey(),
   email: varchar("email", { length: 320 }).notNull().unique(),
-  status: mysqlEnum("status", ["subscribed", "unsubscribed"])
+  status: varchar("status", { length: 16 })
+    .$type<"subscribed" | "unsubscribed">()
     .default("subscribed")
     .notNull(),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
@@ -226,12 +234,12 @@ export type NewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 export type InsertNewsletterSubscriber =
   typeof newsletterSubscribers.$inferInsert;
 
-export const venuePins = mysqlTable("venuePins", {
-  id: int("id").autoincrement().primaryKey(),
+export const venuePins = pgTable("venuePins", {
+  id: serial("id").primaryKey(),
   name: varchar("name", { length: 160 }).notNull(),
   mapUrl: text("mapUrl").notNull(),
-  sortOrder: int("sortOrder").default(0).notNull(),
-  isPublished: int("isPublished").default(1).notNull(),
+  sortOrder: integer("sortOrder").default(0).notNull(),
+  isPublished: integer("isPublished").default(1).notNull(),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 });
@@ -240,20 +248,17 @@ export type VenuePin = typeof venuePins.$inferSelect;
 export type InsertVenuePin = typeof venuePins.$inferInsert;
 
 /** "Hear Me Out" submissions — community voice channel managed from the admin panel. */
-export const hearMeOutSubmissions = mysqlTable("hearMeOutSubmissions", {
-  id: int("id").autoincrement().primaryKey(),
+export const hearMeOutSubmissions = pgTable("hearMeOutSubmissions", {
+  id: serial("id").primaryKey(),
   subject: varchar("subject", { length: 240 }).notNull(),
   sender: varchar("sender", { length: 120 }),
-  category: mysqlEnum("category", [
-    "Suggestion",
-    "Appreciation",
-    "Idea",
-    "Ask",
-  ])
+  category: varchar("category", { length: 24 })
+    .$type<"Suggestion" | "Appreciation" | "Idea" | "Ask">()
     .default("Suggestion")
     .notNull(),
   excerpt: text("excerpt"),
-  status: mysqlEnum("status", ["new", "in_review", "published", "archived"])
+  status: varchar("status", { length: 16 })
+    .$type<"new" | "in_review" | "published" | "archived">()
     .default("new")
     .notNull(),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
@@ -265,13 +270,16 @@ export type InsertHearMeOutSubmission =
   typeof hearMeOutSubmissions.$inferInsert;
 
 /** Newsletter campaigns — sent + draft notes managed from the admin panel. */
-export const newsletterCampaigns = mysqlTable("newsletterCampaigns", {
-  id: int("id").autoincrement().primaryKey(),
+export const newsletterCampaigns = pgTable("newsletterCampaigns", {
+  id: serial("id").primaryKey(),
   subject: varchar("subject", { length: 240 }).notNull(),
   audience: varchar("audience", { length: 120 }).default("All subscribers"),
-  recipients: int("recipients").default(0).notNull(),
+  recipients: integer("recipients").default(0).notNull(),
   body: text("body"),
-  status: mysqlEnum("status", ["draft", "sent"]).default("draft").notNull(),
+  status: varchar("status", { length: 16 })
+    .$type<"draft" | "sent">()
+    .default("draft")
+    .notNull(),
   sentAt: bigint("sentAt", { mode: "number" }),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),

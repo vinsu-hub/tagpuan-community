@@ -1,3 +1,0 @@
-# Transparent Logo Visual QA
-
-The supplied transparent Tagpuan logo is now used in the homepage and shared inner-page navigation/footer through the persistent `/manus-storage/tagpuanlogotransparent_92d74ba9.png` asset URL. Desktop captures show the asset is legible against the dark brown hero/header treatment, and the larger hero presentation remains readable on the scrapbook background. The About page retains the same dark hero treatment and shared footer usage. Mobile captures from the preceding pass confirm responsive placement alongside the compact navigation control. The supplied PNG includes generous transparent/noise margins, so the logo intentionally reads as a small tactile mark in utility contexts while the hero receives a larger treatment.

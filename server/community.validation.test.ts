@@ -5,8 +5,8 @@ import type { TrpcContext } from "./_core/context";
 function caller() {
   const ctx: TrpcContext = {
     user: null,
-    req: { headers: {}, protocol: "https" } as TrpcContext["req"],
-    res: { clearCookie: () => undefined } as TrpcContext["res"],
+    clientIp: "",
+    userAgent: "test",
   };
   return appRouter.createCaller(ctx);
 }
