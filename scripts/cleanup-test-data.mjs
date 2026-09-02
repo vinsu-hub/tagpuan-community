@@ -4,9 +4,11 @@
 // Sessions…" recaps).
 //
 // Usage: node scripts/cleanup-test-data.mjs [--dry]
-// Needs DATABASE_URL_DIRECT (or DATABASE_URL) in .env.
+// Needs DATABASE_URL_DIRECT (or DATABASE_URL) in .env. The Storage sweep also
+// needs SUPABASE_URL + SUPABASE_SERVICE_ROLE_KEY (skipped with a note if absent).
 import "dotenv/config";
 import postgres from "postgres";
+import { createClient } from "@supabase/supabase-js";
 
 const url = process.env.DATABASE_URL_DIRECT ?? process.env.DATABASE_URL;
 if (!url) {
@@ -15,6 +17,52 @@ if (!url) {
 }
 const dry = process.argv.includes("--dry");
 const sql = postgres(url, { prepare: false });
+
+const supaUrl = process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL;
+const supaKey =
+  process.env.SUPABASE_SERVICE_ROLE_KEY ?? process.env.SUPABASE_SECRET_KEY;
+
+async function sweepStorage() {
+  if (!supaUrl || !supaKey) {
+    console.log(
+      "storage (media)            skipped — set SUPABASE_SERVICE_ROLE_KEY in .env to sweep test uploads"
+    );
+    return;
+  }
+  const store = createClient(supaUrl, supaKey, {
+    auth: { persistSession: false },
+  }).storage.from("media");
+  const prefixes = ["events", "recaps", "uploads", "spotlights", ""];
+  let removed = 0;
+  for (const prefix of prefixes) {
+    const { data, error } = await store.list(prefix, { limit: 1000 });
+    if (error) {
+      console.log(`storage (media/${prefix})   list error: ${error.message}`);
+      continue;
+    }
+    const files = (data ?? [])
+      .filter(o => o.id) // folders have null id
+      .map(o => (prefix ? `${prefix}/${o.name}` : o.name));
+    if (!files.length) continue;
+    if (dry) {
+      console.log(
+        `storage (media/${prefix || "root"})     ${files.length}  (dry-run)`
+      );
+      removed += files.length;
+      continue;
+    }
+    const { error: delErr } = await store.remove(files);
+    if (delErr) {
+      console.log(`storage (media/${prefix})   delete error: ${delErr.message}`);
+      continue;
+    }
+    console.log(
+      `storage (media/${prefix || "root"})     ${files.length}  deleted`
+    );
+    removed += files.length;
+  }
+  if (removed === 0) console.log("storage (media)            0");
+}
 
 // [label, count-query, delete-query]
 const targets = [
@@ -53,11 +101,6 @@ const targets = [
     sql`select count(*)::int n from "newsletterCampaigns" where status = 'draft' and subject = 'A little room for good things'`,
     sql`delete from "newsletterCampaigns" where status = 'draft' and subject = 'A little room for good things'`,
   ],
-  [
-    "storage.objects (media)",
-    sql`select count(*)::int n from storage.objects where bucket_id = 'media' and (name like 'events/%' or name like 'recaps/%' or name like 'uploads/%' or name like 'spotlights/%' or name not like '%/%')`,
-    sql`delete from storage.objects where bucket_id = 'media' and (name like 'events/%' or name like 'recaps/%' or name like 'uploads/%' or name like 'spotlights/%' or name not like '%/%')`,
-  ],
 ];
 
 try {
@@ -76,7 +119,8 @@ try {
       console.log(`${label.padEnd(26)} ${n}  deleted`);
     }
   }
-  console.log(`\n${dry ? "would remove" : "removed"} ${total} row(s)`);
+  await sweepStorage();
+  console.log(`\n${dry ? "would remove" : "removed"} ${total} db row(s)`);
 } finally {
   await sql.end();
 }
