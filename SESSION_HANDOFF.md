@@ -1,11 +1,66 @@
 # Session handoff — Tagpuan Supabase/Vercel migration + QA
 
-_Last updated: 2026-08-29_
+_Last updated: 2026-09-02_
 
 ## Where things stand
 
 **Live:** https://tagpuan-final.vercel.app — public site + `/admin` panel, fully working end-to-end.
-**Repo:** https://github.com/vinsu-hub/tagpuan-final — `main` @ `b23b8da`.
+**Repo:** `main` @ `e261797`, pushed to **both** remotes (`final` = github.com/vinsu-hub/tagpuan-final, auto-deploys to Vercel; `origin` = github.com/vinsu-hub/tagpuan-community).
+
+---
+
+## Session 2026-09-02 — Brand mark refresh
+
+**Goal:** replace the old logo everywhere, especially the admin board view; verify; smoke test; deploy.
+
+### What I found
+- The **homepage** logos were already the new brand — `tagpuan-lockup.webp` / `tagpuan-type.webp` /
+  `tagpuan-hut.webp` in `client/public/assets/tagpuan/` are byte-consistent with the source art in
+  `D:\Tagpuan\logo\` (`tagpuan logo transparent complete.png`, `TYPOGRAPHY  ONLY.png`). Near-white,
+  meant for dark/photo backgrounds. Left untouched.
+- The **admin panel** was still on the OLD logo: `mark.png` — a filled black/orange thatched-hut icon
+  with a fake-transparency checkerboard baked into an opaque PNG (alpha all 255). Shown in the admin
+  sidebar brand lockup (`AdminWorkspace.tsx:56,211`) and the admin footer (`:310`). The
+  `.brand-lockup img` CSS used `mix-blend-mode: multiply` + sepia to hide that baked background.
+- **No favicon** at all — site used the browser default. `client/index.html` had no icon links.
+
+### Changes — commit `e261797` "Update brand mark to new Tagpuan logo (admin + favicon)"
+- **Regenerated `client/public/assets/tagpuan/mark.png`** from `logo/LOGO ONLY.png` via PIL: crop to
+  bbox, pad to square, recolor all non-transparent px to dark brown `rgb(61,43,28)`, keep alpha,
+  512×512, clean transparent PNG. (Script was ad-hoc, not committed.)
+- **Removed `mix-blend-mode: multiply` + `filter: sepia(...)` from `.brand-lockup img`** in
+  `client/src/admin/admin.css` (~line 78) — the new asset is properly transparent and the hack would
+  have washed out the brown.
+- **Added the mark to the `/login` card** — `client/src/pages/Login.tsx`, 52×52 `<img>` above the h1.
+- **Added favicons** — `client/public/favicon.ico` + `favicon-16.png` / `-32.png` / `-180.png`
+  (dark mark on transparent), wired into `client/index.html` (`icon`, `apple-touch-icon`).
+
+### Verification
+- `pnpm check` (tsc) clean · `pnpm build` clean (bundle still ~720 KB, pre-existing warning).
+- Local `vite preview` — login card renders with the mark; `favicon.ico` + `mark.png` serve 200;
+  no page errors. (Admin shell can't fully render locally — no serverless API under `vite preview`.)
+- **Deployed** (auto-deploy on push to `final`). Confirmed live by matching `favicon.ico` md5.
+- **Production smoke test** (`node scripts/smoke.mjs`): **48 PASS · 1 PARTIAL · 3 FAIL.**
+  - Screenshotted prod `/login` + authenticated `/admin` at 1440 — **new hut mark renders correctly
+    in the admin sidebar** next to "TAGPUAN / Admin Workspace", and on the login card.
+  - The 3 FAILs (`Wall: post note` timeout, `Admin: createEvent` "no network call", its dependent
+    list check) + the `Typography` PARTIAL are **pre-existing** form/backend-flow issues, unrelated
+    to this static-asset change. Not investigated. Candidate for next session if those flows matter.
+
+### Notes for next session
+- `logo/` source art: `LOGO ONLY.png` = hut mark, `TYPOGRAPHY  ONLY.png` = wordmark,
+  `tagpuan logo transparent complete.png` = full lockup. All near-white on transparent.
+- The mobile admin topbar brand (`AdminWorkspace.tsx:297`) is **text-only** ("TAGPUAN ADMIN") — no
+  logo there by design.
+- `ArrowUpRight` "Preview website" link in the admin topbar still points to `/` (correct).
+- Old `mark.png` recolor is dark brown for the light admin sidebar (`--admin-sidebar-bg: #f4e8d5`).
+  If the sidebar ever goes dark, regenerate mark.png white instead.
+
+---
+
+## Prior session (2026-08-29) — Supabase/Vercel migration + QA
+
+_State at that time: `main` @ `b23b8da`._
 **Stack:** Vite + React 19 SPA · tRPC v11 serverless function (`api/trpc/[trpc].ts`) · Drizzle ORM on
 Supabase Postgres · Supabase Auth (email+password, ES256/JWKS) · Supabase Storage (`media` bucket) ·
 hosted on Vercel, GitHub-connected auto-deploy.
@@ -86,6 +141,8 @@ home, **Fraunces admin**). Full write-up saved to `scratchpad/smoke-report.md` d
 ## Commit trail (this session, on top of `bf394cd` / `cee66da` from the prior session)
 
 ```
+e261797  Update brand mark to new Tagpuan logo (admin + favicon)   ← 2026-09-02 session
+1dde3ff  Add session handoff + TODO
 b23b8da  Ignore smoke-out/ (local Playwright screenshot output)
 09d8ca8  Fix admin session-hydration redirect race
 66743ee  Fix serverless API resolution + client env baking + font/a11y regressions
