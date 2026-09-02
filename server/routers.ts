@@ -1,11 +1,15 @@
-import { createHash } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { systemRouter } from "./_core/systemRouter.js";
+import { supabaseAdmin } from "./_core/supabaseAdmin.js";
 import { protectedProcedure, publicProcedure, router } from "./_core/trpc.js";
 import {
   countRecentBySession,
   countRecentEventRegistrations,
+  countRecentHearMeOutBySession,
+  countRecentNewsletterBySession,
+  countRecentReportsBySession,
   createReport,
   createNewsletterCampaign,
   getAdminActivityFeed,
@@ -127,6 +131,16 @@ function rejectIfBlocked(body: string) {
       code: "BAD_REQUEST",
       message: "That note can't go up. Try rephrasing.",
     });
+}
+
+/** Throw TOO_MANY_REQUESTS when a session exceeds `limit` of something per hour. */
+async function throttle(
+  count: Promise<number>,
+  limit: number,
+  message: string
+) {
+  if ((await count) >= limit)
+    throw new TRPCError({ code: "TOO_MANY_REQUESTS", message });
 }
 
 export const appRouter = router({
@@ -363,7 +377,37 @@ export const appRouter = router({
           return { success: true, message: "Campaign saved." };
         }),
     }),
-    media: adminProcedure.query(() => listAdminMedia()),
+    media: router({
+      list: adminProcedure.query(() => listAdminMedia()),
+      // Browsers no longer write to the `media` bucket directly. An admin asks
+      // for a one-shot signed upload URL here (service-role), then PUTs the file
+      // to it via `supabase.storage.uploadToSignedUrl`.
+      createUploadUrl: adminProcedure
+        .input(
+          z.object({
+            folder: z
+              .string()
+              .trim()
+              .regex(/^[a-z0-9-]{1,24}$/, "folder must be a short slug")
+              .default("uploads"),
+            filename: z.string().trim().min(1).max(200),
+            contentType: z.enum(["image/png", "image/jpeg", "image/webp"]),
+          })
+        )
+        .mutation(async ({ input }) => {
+          const safeName = input.filename.replace(/[^a-zA-Z0-9.\-_]/g, "-");
+          const path = `${input.folder}/${randomUUID()}-${safeName}`;
+          const storage = supabaseAdmin().storage.from("media");
+          const { data, error } = await storage.createSignedUploadUrl(path);
+          if (error || !data)
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+              message: error?.message ?? "Could not create an upload URL.",
+            });
+          const { data: pub } = storage.getPublicUrl(path);
+          return { path, token: data.token, publicUrl: pub.publicUrl };
+        }),
+    }),
   }),
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -421,18 +465,22 @@ export const appRouter = router({
     pin: publicProcedure
       .input(z.object({ id: z.number().int().positive() }))
       .mutation(async ({ input }) => {
+        // Known: unauthenticated and unthrottled — worst case is an inflated
+        // pin count on one note, which moderation can reset. Low severity;
+        // revisit with a per-session guard if it's ever abused.
         await incrementWallPin(input.id);
         return { success: true };
       }),
     report: publicProcedure
       .input(reportSchema)
       .mutation(async ({ ctx, input }) => {
-        await createReport(
-          input.targetType,
-          input.targetId,
-          sessionHash(ctx),
-          input.reason
+        const hash = sessionHash(ctx);
+        await throttle(
+          countRecentReportsBySession(hash),
+          10,
+          "You've sent a lot of reports. Take a break and try again later."
         );
+        await createReport(input.targetType, input.targetId, hash, input.reason);
         return { success: true, message: "Thanks, we'll take a look." };
       }),
   }),
@@ -476,12 +524,13 @@ export const appRouter = router({
     report: publicProcedure
       .input(reportSchema)
       .mutation(async ({ ctx, input }) => {
-        await createReport(
-          input.targetType,
-          input.targetId,
-          sessionHash(ctx),
-          input.reason
+        const hash = sessionHash(ctx);
+        await throttle(
+          countRecentReportsBySession(hash),
+          10,
+          "You've sent a lot of reports. Take a break and try again later."
         );
+        await createReport(input.targetType, input.targetId, hash, input.reason);
         return { success: true, message: "Thanks, we'll take a look." };
       }),
   }),
@@ -527,10 +576,17 @@ export const appRouter = router({
   newsletter: router({
     subscribe: publicProcedure
       .input(z.object({ email: z.string().trim().email().max(320) }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        const hash = sessionHash(ctx);
+        await throttle(
+          countRecentNewsletterBySession(hash),
+          5,
+          "That's a lot of sign-ups from here. Try again later."
+        );
         await subscribeNewsletter({
           email: input.email.toLowerCase(),
           status: "subscribed",
+          sessionHash: hash,
           createdAt: Date.now(),
           updatedAt: Date.now(),
         });
@@ -549,13 +605,20 @@ export const appRouter = router({
           excerpt: z.string().trim().max(3000).optional(),
         })
       )
-      .mutation(async ({ input }) => {
+      .mutation(async ({ ctx, input }) => {
+        const hash = sessionHash(ctx);
+        await throttle(
+          countRecentHearMeOutBySession(hash),
+          5,
+          "You've sent a few of these already. Give it a little while."
+        );
         const now = Date.now();
         await insertHearMeOutSubmission({
           subject: input.subject,
           sender: input.sender || null,
           category: input.category,
           excerpt: input.excerpt || null,
+          sessionHash: hash,
           status: "new",
           createdAt: now,
           updatedAt: now,

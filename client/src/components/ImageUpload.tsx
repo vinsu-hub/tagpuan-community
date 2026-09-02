@@ -1,7 +1,9 @@
 import { supabase } from "@/lib/supabase";
+import { trpc } from "@/lib/trpc";
 import { useRef, useState } from "react";
 
 const BUCKET = "media";
+const ALLOWED = ["image/png", "image/jpeg", "image/webp"] as const;
 
 type ImageUploadProps = {
   value: string;
@@ -10,7 +12,11 @@ type ImageUploadProps = {
   label?: string;
 };
 
-/** Uploads an image to the Supabase Storage `media` bucket and returns its public URL. */
+/**
+ * Admin image upload. The browser no longer has write access to the `media`
+ * bucket — it asks the server (admin-only) for a one-shot signed upload URL,
+ * then PUTs the file straight to Storage with that token.
+ */
 export function ImageUpload({
   value,
   onChange,
@@ -20,23 +26,37 @@ export function ImageUpload({
   const inputRef = useRef<HTMLInputElement>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const createUploadUrl = trpc.admin.media.createUploadUrl.useMutation();
 
   const handleFile = async (file: File) => {
     setBusy(true);
     setError(null);
-    const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, "-");
-    const path = `${folder}/${crypto.randomUUID()}-${safeName}`;
-    const { error: uploadError } = await supabase.storage
-      .from(BUCKET)
-      .upload(path, file, { cacheControl: "3600", upsert: false });
-    if (uploadError) {
-      setError(uploadError.message || "Upload failed.");
+    try {
+      const contentType = ALLOWED.includes(file.type as (typeof ALLOWED)[number])
+        ? (file.type as (typeof ALLOWED)[number])
+        : null;
+      if (!contentType) {
+        setError("Use a PNG, JPEG, or WebP image.");
+        return;
+      }
+      const { path, token, publicUrl } = await createUploadUrl.mutateAsync({
+        folder,
+        filename: file.name,
+        contentType,
+      });
+      const { error: uploadError } = await supabase.storage
+        .from(BUCKET)
+        .uploadToSignedUrl(path, token, file, { contentType });
+      if (uploadError) {
+        setError(uploadError.message || "Upload failed.");
+        return;
+      }
+      onChange(publicUrl);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Upload failed.");
+    } finally {
       setBusy(false);
-      return;
     }
-    const { data } = supabase.storage.from(BUCKET).getPublicUrl(path);
-    onChange(data.publicUrl);
-    setBusy(false);
   };
 
   return (

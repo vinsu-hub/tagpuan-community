@@ -15,10 +15,14 @@ export async function createContext(opts: {
   const token = bearerToken(req.headers.get("authorization"));
   const user = await resolveUser(token).catch(() => null);
 
+  // Vercel sets `x-real-ip` from the edge and it can't be spoofed by the client;
+  // `x-forwarded-for` is client-appendable, so only trust its first hop as a
+  // fallback.
+  const forwardedFor = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim();
+
   return {
     user,
-    clientIp:
-      req.headers.get("x-forwarded-for") ?? req.headers.get("x-real-ip") ?? "",
+    clientIp: req.headers.get("x-real-ip") ?? forwardedFor ?? "",
     userAgent: req.headers.get("user-agent") ?? "unknown",
   };
 }
