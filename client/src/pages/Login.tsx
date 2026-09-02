@@ -62,6 +62,13 @@ export default function Login() {
           boxShadow: "0 18px 40px -24px rgba(58,44,30,0.4)",
         }}
       >
+        <img
+          src="/assets/tagpuan/mark.png"
+          alt="Tagpuan"
+          width={52}
+          height={52}
+          style={{ display: "block", marginBottom: "0.75rem" }}
+        />
         <h1 style={{ fontSize: "1.5rem", margin: "0 0 0.25rem" }}>
           Tagpuan Admin
         </h1>

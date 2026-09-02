@@ -79,8 +79,6 @@
   width: 48px;
   height: 48px;
   object-fit: contain;
-  filter: sepia(0.12) saturate(0.8);
-  mix-blend-mode: multiply;
 }
 .brand-name,
 .mobile-brand {
