@@ -16,23 +16,11 @@ create policy "media public read"
   on storage.objects for select
   using (bucket_id = 'media');
 
--- Any signed-in user may add / replace / remove objects. The admin panel is
--- gated in the app (ADMIN_EMAILS -> users.role), so this is the practical
--- boundary for v1; tighten to an admin JWT claim later if needed.
+-- Writes go through the tRPC `admin.media.createUploadUrl` procedure, which is
+-- behind `adminProcedure` and mints a one-shot signed upload URL with the
+-- service-role key. Signed uploads and the service-role client both bypass RLS,
+-- so there are NO INSERT / UPDATE / DELETE policies here — the browser has no
+-- write path to storage.objects.
 drop policy if exists "media authenticated write" on storage.objects;
-create policy "media authenticated write"
-  on storage.objects for insert
-  to authenticated
-  with check (bucket_id = 'media');
-
 drop policy if exists "media authenticated update" on storage.objects;
-create policy "media authenticated update"
-  on storage.objects for update
-  to authenticated
-  using (bucket_id = 'media');
-
 drop policy if exists "media authenticated delete" on storage.objects;
-create policy "media authenticated delete"
-  on storage.objects for delete
-  to authenticated
-  using (bucket_id = 'media');

@@ -226,6 +226,8 @@ export const newsletterSubscribers = pgTable("newsletterSubscribers", {
     .$type<"subscribed" | "unsubscribed">()
     .default("subscribed")
     .notNull(),
+  // Hash of client IP + UA at signup — used only for volume rate-limiting.
+  sessionHash: varchar("sessionHash", { length: 128 }),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 });
@@ -261,6 +263,8 @@ export const hearMeOutSubmissions = pgTable("hearMeOutSubmissions", {
     .$type<"new" | "in_review" | "published" | "archived">()
     .default("new")
     .notNull(),
+  // Hash of client IP + UA at submit — used only for rate-limiting.
+  sessionHash: varchar("sessionHash", { length: 128 }),
   createdAt: bigint("createdAt", { mode: "number" }).notNull(),
   updatedAt: bigint("updatedAt", { mode: "number" }).notNull(),
 });

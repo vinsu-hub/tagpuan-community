@@ -1378,7 +1378,7 @@ export function HearMeOutPage() {
 }
 
 export function MediaPage() {
-  const { data, isLoading } = trpc.admin.media.useQuery();
+  const { data, isLoading } = trpc.admin.media.list.useQuery();
   const utils = trpc.useUtils();
   const photos = data?.photos ?? [];
   const eventImages = data?.eventImages ?? [];

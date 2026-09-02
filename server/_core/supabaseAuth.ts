@@ -33,14 +33,22 @@ export async function verifyToken(token: string): Promise<VerifiedToken> {
   return { sub, email };
 }
 
+function verifyOptions() {
+  // Pin the token to this Supabase project's auth server and the "authenticated"
+  // audience so a token minted for anything else on the same JWKS is rejected.
+  return ENV.supabaseUrl
+    ? { issuer: `${ENV.supabaseUrl}/auth/v1`, audience: "authenticated" }
+    : { audience: "authenticated" };
+}
+
 async function verifyClaims(token: string): Promise<Record<string, unknown>> {
   try {
-    const { payload } = await jwtVerify(token, getJwks());
+    const { payload } = await jwtVerify(token, getJwks(), verifyOptions());
     return payload as Record<string, unknown>;
   } catch (error) {
     if (ENV.supabaseJwtSecret) {
       const secret = new TextEncoder().encode(ENV.supabaseJwtSecret);
-      const { payload } = await jwtVerify(token, secret);
+      const { payload } = await jwtVerify(token, secret, verifyOptions());
       return payload as Record<string, unknown>;
     }
     throw error;

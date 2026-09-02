@@ -275,6 +275,56 @@ export async function countRecentBySession(
   return Number(result[0]?.total ?? 0);
 }
 
+const ONE_HOUR = 60 * 60 * 1000;
+
+/** Reports filed from one session (IP+UA hash) in the last hour. */
+export async function countRecentReportsBySession(sessionHash: string) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(moderationReports)
+    .where(
+      and(
+        eq(moderationReports.reporterSessionHash, sessionHash),
+        gt(moderationReports.createdAt, Date.now() - ONE_HOUR)
+      )
+    );
+  return Number(result[0]?.total ?? 0);
+}
+
+/** "Hear Me Out" submissions from one session in the last hour. */
+export async function countRecentHearMeOutBySession(sessionHash: string) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(hearMeOutSubmissions)
+    .where(
+      and(
+        eq(hearMeOutSubmissions.sessionHash, sessionHash),
+        gt(hearMeOutSubmissions.createdAt, Date.now() - ONE_HOUR)
+      )
+    );
+  return Number(result[0]?.total ?? 0);
+}
+
+/** Newsletter sign-ups from one session in the last hour. */
+export async function countRecentNewsletterBySession(sessionHash: string) {
+  const db = await getDb();
+  if (!db) return 0;
+  const result = await db
+    .select({ total: sql<number>`count(*)` })
+    .from(newsletterSubscribers)
+    .where(
+      and(
+        eq(newsletterSubscribers.sessionHash, sessionHash),
+        gt(newsletterSubscribers.createdAt, Date.now() - ONE_HOUR)
+      )
+    );
+  return Number(result[0]?.total ?? 0);
+}
+
 export async function insertWallNote(note: InsertWallNote) {
   const db = await getDb();
   if (!db) return undefined;
