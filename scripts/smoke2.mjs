@@ -88,8 +88,10 @@ try {
   await page.getByRole("button", { name: /upload image/i }).first().click();
   const fc = await chooser;
   await fc.setFiles({ name: "smoke-cover.png", mimeType: "image/png", buffer: PNG });
-  // wait for the preview img (public URL) to appear
-  const uploaded = await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 20000 }).then(() => true).catch(() => false);
+  // wait for the preview img (public URL). This is the first admin mutation of
+  // the run: server-signed upload = createUploadUrl round-trip (cold function
+  // ~5-8s) + the PUT + re-render, so give it a generous budget.
+  const uploaded = await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 35000 }).then(() => true).catch(() => false);
   rec("ImageUpload → Supabase Storage (Create Event)", uploaded ? "PASS" : "FAIL", uploaded ? "" : "no supabase.co preview img after upload");
   await page.getByLabel(/image description/i).fill("Smoke cover").catch(() => {});
   const [cr] = await Promise.all([
@@ -117,7 +119,7 @@ try {
   const rc1 = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: /upload image/i }).first().click();
   (await rc1).setFiles({ name: "recap.png", mimeType: "image/png", buffer: PNG });
-  await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 20000 }).catch(() => {});
+  await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 35000 }).catch(() => {});
   await page.getByLabel(/image description/i).fill("Smoke recap photo");
   const [rcResp] = await Promise.all([
     page.waitForResponse(r => r.url().includes("admin.recaps.create"), { timeout: 20000 }).catch(() => null),

@@ -48,7 +48,7 @@ try {
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: /upload image/i }).first().click();
   (await chooser).setFiles({ name: "smoke-cover.png", mimeType: "image/png", buffer: PNG });
-  const up = await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 25000 }).then(s => s.getAttribute("src")).catch(() => null);
+  const up = await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 35000 }).then(s => s.getAttribute("src")).catch(() => null);
   rec("ImageUpload → Supabase Storage", up ? "PASS" : "FAIL", up ? up.slice(0, 90) : "no supabase.co img");
 
   // fill + submit to persist the URL
@@ -70,7 +70,7 @@ try {
   const rc = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: /upload image/i }).first().click();
   (await rc).setFiles({ name: "recap.png", mimeType: "image/png", buffer: PNG });
-  await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 25000 }).catch(() => {});
+  await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 35000 }).catch(() => {});
   await page.getByLabel(/image description/i).fill("Smoke recap alt").catch(() => {});
   const [rcResp] = await Promise.all([
     page.waitForResponse(r => r.url().includes("admin.recaps.create"), { timeout: 20000 }).catch(() => null),
