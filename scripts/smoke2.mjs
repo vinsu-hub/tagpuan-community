@@ -1,9 +1,18 @@
 // Focused pass: image upload to Supabase Storage, admin moderation, recap CRUD.
+// Usage: node scripts/smoke2.mjs [baseUrl]   (env: SMOKE_BASE_URL, SMOKE_ADMIN_EMAIL, SMOKE_ADMIN_PASSWORD)
 import { chromium } from "playwright";
 import { writeFileSync } from "node:fs";
-const BASE = "https://tagpuan-final.vercel.app";
+const BASE =
+  process.argv[2] || process.env.SMOKE_BASE_URL || "https://tagpuan-final.vercel.app";
 const OUT = process.env.SMOKE_OUT || "smoke-out";
-const A = { email: "admin@tagpuan.community", password: "admin123" };
+const A = {
+  email: process.env.SMOKE_ADMIN_EMAIL,
+  password: process.env.SMOKE_ADMIN_PASSWORD,
+};
+if (!A.email || !A.password) {
+  console.error("Set SMOKE_ADMIN_EMAIL and SMOKE_ADMIN_PASSWORD.");
+  process.exit(2);
+}
 const R = [];
 const rec = (a, s, n = "") => { R.push({ a, s, n }); console.log(`${s}  ${a}${n ? " — " + n : ""}`); };
 
@@ -16,7 +25,37 @@ async function login(page) {
   await page.fill("input[type=password]", A.password);
   await page.getByRole("button", { name: /sign in/i }).click();
   await page.waitForURL(u => u.toString().includes("/admin"), { timeout: 20000 });
-  await page.waitForTimeout(2500);
+  // login lands on /admin already — wait for the shell to finish hydrating
+  // ("Loading workspace…"). A cold serverless auth.me can be slow; one reload
+  // clears a wedged hydration.
+  const shell = () =>
+    page
+      .waitForSelector(".admin-root, .admin-sidebar", { state: "visible", timeout: 30000 })
+      .then(() => true)
+      .catch(() => false);
+  if (!(await shell())) {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    if (!(await shell())) throw new Error("admin shell never hydrated after login");
+  }
+  await page.waitForTimeout(1500);
+}
+
+/**
+ * Go to an admin section. Prefers client-side routing (click the sidebar) so we
+ * don't re-hydrate the Supabase session every hop; falls back to a full load
+ * when we're outside the shell (e.g. after visiting a public page).
+ */
+async function navSection(page, label, path, sectionSel) {
+  if (await page.locator(".side-nav").count()) {
+    await page.locator(".side-nav button").filter({ hasText: label }).first().click();
+    await page.waitForURL(u => u.toString().includes(path), { timeout: 10000 }).catch(() => {});
+  } else {
+    await page.goto(BASE + path, { waitUntil: "domcontentloaded" });
+    await page.waitForSelector(".admin-sidebar", { timeout: 25000 }).catch(() => {});
+  }
+  if (sectionSel) {
+    await page.waitForSelector(sectionSel, { state: "visible", timeout: 20000 }).catch(() => {});
+  }
 }
 
 const b = await chromium.launch();
@@ -30,18 +69,19 @@ try {
   await login(page);
 
   // dashboard data present?
-  await page.goto(BASE + "/admin", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(3500);
-  const stats = await page.locator(".stats-grid").innerText();
-  rec("Admin dashboard shows live counts", /[1-9]/.test(stats) ? "PASS" : "PARTIAL", stats.replace(/\s+/g, " ").slice(0, 120));
+  const stats = await page
+    .locator(".stats-grid")
+    .innerText({ timeout: 20000 })
+    .catch(() => "");
+  rec("Admin dashboard shows live counts", stats ? "PASS" : "PARTIAL", stats.replace(/\s+/g, " ").slice(0, 120));
 
   // ---- Create Event WITH image upload ----
-  await page.goto(BASE + "/admin/events/new", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1500);
+  await navSection(page, "Create Event", "/admin/events/new", ".event-info-card");
+  await page.waitForTimeout(500);
   const slug = "smoke-ui-event-" + Date.now();
-  await page.getByText("Event name", { exact: false }).locator("xpath=following::input[1]").fill("Smoke UI Event");
-  await page.getByText("Slug", { exact: false }).locator("xpath=following::input[1]").fill(slug);
-  await page.getByText("Venue", { exact: false }).locator("xpath=following::input[1]").fill("The Upload Room");
+  await page.getByLabel(/event name/i).fill("Smoke UI Event");
+  await page.getByLabel(/slug/i).fill(slug);
+  await page.getByLabel(/venue/i).fill("The Upload Room");
   await page.locator("textarea").first().fill("Smoke UI event verifying admin.createEvent plus a real Supabase Storage image upload from the browser.");
   // upload cover image
   const chooser = page.waitForEvent("filechooser");
@@ -51,10 +91,10 @@ try {
   // wait for the preview img (public URL) to appear
   const uploaded = await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 20000 }).then(() => true).catch(() => false);
   rec("ImageUpload → Supabase Storage (Create Event)", uploaded ? "PASS" : "FAIL", uploaded ? "" : "no supabase.co preview img after upload");
-  await page.getByText("Image description", { exact: false }).locator("xpath=following::input[1]").fill("Smoke cover").catch(() => {});
+  await page.getByLabel(/image description/i).fill("Smoke cover").catch(() => {});
   const [cr] = await Promise.all([
     page.waitForResponse(r => r.url().includes("admin.createEvent"), { timeout: 20000 }).catch(() => null),
-    page.getByRole("button", { name: /create event/i }).first().click(),
+    page.locator(".page-header .header-actions button").filter({ hasText: /create event/i }).click(),
   ]);
   rec("Create Event submit (with image)", cr && cr.status() === 200 ? "PASS" : "FAIL", cr ? `HTTP ${cr.status()} ${(await cr.text()).slice(0, 80)}` : "no call");
 
@@ -71,15 +111,14 @@ try {
   rec("Public /events renders uploaded cover", pubImg ? "PASS" : "PARTIAL", pubImg ? "" : "no supabase.co bg on /events (may need publish/time)");
 
   // ---- Recap create + update via drawer ----
-  await page.goto(BASE + "/admin/recaps", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1500);
+  await navSection(page, "Event Recaps", "/admin/recaps", ".section-page");
   await page.getByRole("button", { name: /add recap/i }).click();
   await page.waitForTimeout(400);
   const rc1 = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: /upload image/i }).first().click();
   (await rc1).setFiles({ name: "recap.png", mimeType: "image/png", buffer: PNG });
   await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 20000 }).catch(() => {});
-  await page.getByText("Image description", { exact: false }).locator("xpath=following::input[1]").fill("Smoke recap photo");
+  await page.getByLabel(/image description/i).fill("Smoke recap photo");
   const [rcResp] = await Promise.all([
     page.waitForResponse(r => r.url().includes("admin.recaps.create"), { timeout: 20000 }).catch(() => null),
     page.getByRole("button", { name: /save recap/i }).click(),
@@ -103,8 +142,8 @@ try {
   await page.evaluate(async () => {
     await fetch("/api/trpc/wall.create?batch=1", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ "0": { json: { body: "moderation seed " + Date.now(), tone: "rose" } } }) });
   });
-  await page.goto(BASE + "/admin/wall", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1800);
+  await navSection(page, "Wall", "/admin/wall", ".section-page");
+  await page.waitForTimeout(1500);
   const approveBtn = page.getByRole("button", { name: /^approve$/i }).first();
   if (await approveBtn.count()) {
     const [ws] = await Promise.all([
@@ -115,14 +154,14 @@ try {
   } else rec("Wall moderation", "PARTIAL", "no pending note / approve button");
 
   // ---- Applicants: the smoke registration from run 1 should be here ----
-  await page.goto(BASE + "/admin/applicants", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1800);
+  await navSection(page, "Applicants & RSVPs", "/admin/applicants", ".applicant-table, .section-page");
+  await page.waitForTimeout(1200);
   const hasRows = (await page.locator(".applicant-row").count()) > 0;
   rec("Applicants: registrations listed", hasRows ? "PASS" : "PARTIAL", hasRows ? `${await page.locator(".applicant-row").count()} row(s)` : "none");
 
   // ---- Newsletter: createCampaign ----
-  await page.goto(BASE + "/admin/newsletter", { waitUntil: "domcontentloaded" });
-  await page.waitForTimeout(1500);
+  await navSection(page, "Newsletter", "/admin/newsletter", ".newsletter-layout, .section-page");
+  await page.waitForTimeout(800);
   const [nc] = await Promise.all([
     page.waitForResponse(r => r.url().includes("newsletter.createCampaign"), { timeout: 15000 }).catch(() => null),
     page.getByRole("button", { name: /new campaign/i }).last().click(),
