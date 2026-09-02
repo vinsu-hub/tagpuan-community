@@ -174,7 +174,7 @@ const spotlight = {
   role: "Product designer, weekend potter",
   quote:
     "What I'm working on right now: a tiny ceramic lamp series, and getting better at asking people what they are excited about.",
-  event: "FEATURED AT: SATURDAY NIGHT SESSION · AUG 29",
+  event: "FEATURED AT: THE SOCIAL ROOM · SEP 5",
 };
 
 const placeholderSpotlight = {
@@ -599,8 +599,8 @@ export default function Home() {
             <div className="event-ribbon" role="status">
               <HutMark size={19} />
               <span>Sunod na Tagpuan · Next gathering:</span>
-              <a href="#event-sunday-sessions">
-                Sat Aug 29 · The Social Room <ArrowRight size={12} />
+              <a href="#event-the-social-room">
+                Sat Sep 5 · The Social Room <ArrowRight size={12} />
               </a>
               <button
                 className="ribbon-dismiss focus-ring"
@@ -1431,36 +1431,29 @@ export default function Home() {
             </div>
             <div className="map-card">
               <h4>where we usually are</h4>
-              <a
-                className="map-pin one"
-                href="https://maps.google.com/?q=The+Den"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open The Den in maps"
-              >
-                <HutMark size={18} />
-              </a>
-              <span className="map-label one">The Den</span>
-              <a
-                className="map-pin two"
-                href="https://maps.google.com/?q=Malaya's+Cafe+Grove"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open Malaya's Cafe Grove in maps"
-              >
-                <HutMark size={18} />
-              </a>
-              <span className="map-label two">Malaya's Cafe — Grove</span>
-              <a
-                className="map-pin three"
-                href="https://maps.google.com/?q=The+Social+Room"
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open The Social Room in maps"
-              >
-                <HutMark size={18} />
-              </a>
-              <span className="map-label three">The Social Room</span>
+              <iframe
+                className="map-embed"
+                title="The Den — By Danielitos on Google Maps"
+                src="https://maps.google.com/maps?q=14.1728948,121.2445589&z=16&hl=en&output=embed"
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+              />
+              <div className="map-venues">
+                <a
+                  href="https://maps.app.goo.gl/mxWq4mtZZqXKPLF79"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <HutMark size={14} /> The Den — By Danielitos
+                </a>
+                <a
+                  href="https://maps.google.com/?q=Malaya%27s+Cafe+Grove+Los+Ba%C3%B1os"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <HutMark size={14} /> Malaya's Cafe — Grove
+                </a>
+              </div>
             </div>
           </div>
           <div className="footer-bottom">

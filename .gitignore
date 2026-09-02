@@ -127,3 +127,6 @@ opencode.json
 
 # smoke test output
 smoke-out/
+
+# content drop-off folder (event posters + captions — consumed into the app, not committed)
+/whatsgoingon/
