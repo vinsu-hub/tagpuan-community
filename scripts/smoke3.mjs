@@ -1,8 +1,16 @@
 // Minimal robust pass: browser image upload + moderation + recap update.
+// Usage: node scripts/smoke3.mjs [baseUrl]   (env: SMOKE_BASE_URL, SMOKE_ADMIN_EMAIL, SMOKE_ADMIN_PASSWORD)
 import { chromium } from "playwright";
 import { writeFileSync } from "node:fs";
-const BASE = "https://tagpuan-final.vercel.app";
+const BASE =
+  process.argv[2] || process.env.SMOKE_BASE_URL || "https://tagpuan-final.vercel.app";
 const OUT = process.env.SMOKE_OUT || "smoke-out";
+const ADMIN_EMAIL = process.env.SMOKE_ADMIN_EMAIL;
+const ADMIN_PASSWORD = process.env.SMOKE_ADMIN_PASSWORD;
+if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
+  console.error("Set SMOKE_ADMIN_EMAIL and SMOKE_ADMIN_PASSWORD.");
+  process.exit(2);
+}
 const PNG = Buffer.from("iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAEklEQVR42mP8z8BQz0AEYBxVSF8FAGdcA/2mR4WkAAAAAElFTkSuQmCC", "base64");
 const R = [];
 const rec = (a, s, n = "") => { R.push({ a, s, n }); console.log(`${s}  ${a}${n ? " — " + n : ""}`); };
@@ -17,16 +25,25 @@ page.on("pageerror", e => errs.push(String(e).slice(0, 160)));
 try {
   // login once
   await page.goto(BASE + "/login", { waitUntil: "load" });
-  await page.fill("input[type=email]", "admin@tagpuan.community");
-  await page.fill("input[type=password]", "admin123");
+  await page.fill("input[type=email]", ADMIN_EMAIL);
+  await page.fill("input[type=password]", ADMIN_PASSWORD);
   await page.getByRole("button", { name: /sign in/i }).click();
-  await page.waitForSelector(".admin-sidebar", { timeout: 25000 });
+  await page.waitForURL(u => u.toString().includes("/admin"), { timeout: 20000 });
+  const shell = () =>
+    page
+      .waitForSelector(".admin-root, .admin-sidebar", { state: "visible", timeout: 30000 })
+      .then(() => true)
+      .catch(() => false);
+  if (!(await shell())) {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    if (!(await shell())) throw new Error("admin shell never hydrated after login");
+  }
   await page.waitForTimeout(2000);
   rec("login → admin shell", "PASS", page.url());
 
   // ---- image upload in Create Event ----
-  await page.goto(BASE + "/admin/events/new", { waitUntil: "load" });
-  await page.waitForSelector(".create-grid, .create-page", { timeout: 15000 });
+  await page.locator(".side-nav button").filter({ hasText: "Create Event" }).first().click();
+  await page.waitForSelector(".event-info-card", { timeout: 20000 });
   await page.waitForTimeout(1000);
   const chooser = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: /upload image/i }).first().click();
@@ -35,29 +52,26 @@ try {
   rec("ImageUpload → Supabase Storage", up ? "PASS" : "FAIL", up ? up.slice(0, 90) : "no supabase.co img");
 
   // fill + submit to persist the URL
-  await page.locator(".event-info-card input").nth(0).fill("Smoke UI Event " + Date.now());
-  await page.locator(".event-info-card input").nth(1).fill("smoke-ui-" + Date.now());
-  await page.locator(".event-info-card .input-with-icon input").filter({ hasNot: page.locator("[type=number]") }).first().fill("The Upload Room");
+  await page.getByLabel(/event name/i).fill("Smoke UI Event " + Date.now());
+  await page.getByLabel(/slug/i).fill("smoke-ui-" + Date.now());
+  await page.getByLabel(/venue/i).fill("The Upload Room");
   await page.locator("textarea").first().fill("Verifying admin.createEvent persists the uploaded Supabase Storage cover URL end to end.");
   const [cr] = await Promise.all([
     page.waitForResponse(r => r.url().includes("admin.createEvent"), { timeout: 20000 }).catch(() => null),
-    page.getByRole("button", { name: /create event/i }).first().click(),
+    page.locator(".page-header .header-actions button").filter({ hasText: /create event/i }).click(),
   ]);
   rec("createEvent persists (with cover)", cr && cr.status() === 200 && (await cr.text()).includes("success") ? "PASS" : "FAIL", cr ? `HTTP ${cr.status()}` : "no call");
 
   // ---- recap: add via upload, then drawer publish/hide -> recaps.update ----
-  await page.goto(BASE + "/admin/recaps", { waitUntil: "load" });
-  await page.waitForSelector(".section-page", { timeout: 15000 });
+  await page.locator(".side-nav button").filter({ hasText: "Event Recaps" }).first().click();
+  await page.waitForSelector(".section-page", { timeout: 20000 });
   await page.getByRole("button", { name: /add recap/i }).click();
   await page.waitForTimeout(500);
   const rc = page.waitForEvent("filechooser");
   await page.getByRole("button", { name: /upload image/i }).first().click();
   (await rc).setFiles({ name: "recap.png", mimeType: "image/png", buffer: PNG });
   await page.waitForSelector(".image-upload img[src*='supabase.co']", { timeout: 25000 }).catch(() => {});
-  await page.locator(".form-card input").filter({ hasText: "" }).nth(0).fill("Smoke recap alt").catch(() => {});
-  // the alt input is the first text input in the add-recap form
-  const altInput = page.locator("section.form-card label:has-text('Image description') input");
-  if (await altInput.count()) await altInput.fill("Smoke recap alt");
+  await page.getByLabel(/image description/i).fill("Smoke recap alt").catch(() => {});
   const [rcResp] = await Promise.all([
     page.waitForResponse(r => r.url().includes("admin.recaps.create"), { timeout: 20000 }).catch(() => null),
     page.getByRole("button", { name: /save recap/i }).click(),
@@ -78,8 +92,8 @@ try {
   // ---- wall moderation ----
   await page.evaluate(() => fetch("/api/trpc/wall.create?batch=1", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ "0": { json: { body: "mod seed " + Date.now(), tone: "rose" } } }) }));
   await page.waitForTimeout(500);
-  await page.goto(BASE + "/admin/wall", { waitUntil: "load" });
-  await page.waitForSelector(".section-page", { timeout: 15000 });
+  await page.locator(".side-nav button").filter({ hasText: "Wall" }).first().click();
+  await page.waitForSelector(".section-page", { timeout: 20000 });
   await page.waitForTimeout(1500);
   const approve = page.getByRole("button", { name: /^approve$/i }).first();
   if (await approve.count()) {
