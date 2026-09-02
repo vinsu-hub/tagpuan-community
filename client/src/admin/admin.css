@@ -1,6 +1,10 @@
 ﻿/* Tagpuan Admin Workspace -- warm scrapbook operations (ported from tagpuan-admin).
    Cream paper, brown ink, terracotta actions, editorial type, tactile artifacts. */
 
+/* Fraunces is used only by the admin panel — load it with the admin CSS chunk
+   so the public site never fetches it. Public families load via index.html. */
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400..700&display=swap");
+
 .admin-root {
   --admin-bg: #f8f0e4;
   --admin-sidebar-bg: #f4e8d5;

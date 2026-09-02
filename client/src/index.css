@@ -1,4 +1,6 @@
-@import url("https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Caveat:wght@500;600;700&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,400..700&family=Fredoka:wght@400;500;600;700&display=swap");
+/* Web fonts are loaded via <link> in index.html (public families) and an
+   @import at the top of admin/admin.css (Fraunces, admin-only) — a CSS @import
+   here would block stylesheet parsing for the whole site. */
 @import "tailwindcss";
 @import "tw-animate-css";
 
