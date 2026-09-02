@@ -1,6 +1,9 @@
 // Tagpuan style: warm scrapbook operations — cream paper, brown ink, terracotta actions, editorial type, tactile artifacts.
 // Wired to the live Tagpuan community API via tRPC. Honest empty states — no fabricated data.
 
+// Bundled into the lazy /admin chunk (see App.tsx) — the public site never
+// downloads it.
+import "./admin.css";
 import {
   useMemo,
   useState,
