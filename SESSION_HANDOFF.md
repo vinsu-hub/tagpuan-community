@@ -5,7 +5,61 @@ _Last updated: 2026-09-02_
 ## Where things stand
 
 **Live:** https://tagpuan-final.vercel.app — public site + `/admin` panel, fully working end-to-end.
-**Repo:** `main` @ `e261797`, pushed to **both** remotes (`final` = github.com/vinsu-hub/tagpuan-final, auto-deploys to Vercel; `origin` = github.com/vinsu-hub/tagpuan-community).
+**Repo:** `main` @ `15aafcb`, pushed to **both** remotes (`final` = github.com/vinsu-hub/tagpuan-final, auto-deploys to Vercel; `origin` = github.com/vinsu-hub/tagpuan-community).
+
+---
+
+## Session 2026-09-02 (pt 3) — Health pass + launch content
+
+### Health pass — Phases 1–3 done (see `~/.claude/plans/enchanted-scribbling-swan.md` for the full plan)
+- **Phase 1 (`5730cb1`, merged `ab318df`)** — fixed the 3 FAIL / 1 PARTIAL in the smoke suite. All
+  were stale test-harness bugs (the big one: `getByRole("button",{name:/create event/i}).first()`
+  clicked the *sidebar* "Create Event" nav button, not the form submit). Rewrote the admin section
+  sweep to in-SPA sidebar navigation, env-var credentials (`SMOKE_ADMIN_EMAIL` / `_PASSWORD`),
+  `pnpm smoke` / `smoke:all` scripts. **smoke.mjs 52/0/0.**
+- **Phase 2 (`0c7b883`, merged `f14c2cf`)** — security:
+  - `media` bucket: `admin.media` → router; `createUploadUrl` (adminProcedure) mints a service-role
+    signed upload URL; `ImageUpload` uses `uploadToSignedUrl`. The 3 `authenticated` write policies
+    on `storage.objects` were dropped (only `media public read` remains). **Needs
+    `SUPABASE_SERVICE_ROLE_KEY` in Vercel — set** (also now in local `.env`).
+  - `verifyToken` pins `issuer` + `audience`.
+  - `context.ts` trusts `x-real-ip`; hourly throttles on report/newsletter/hearMeOut; migration
+    `0001` added nullable `sessionHash` to `hearMeOutSubmissions` + `newsletterSubscribers`
+    (applied to prod).
+  - `vercel.json`: security headers + `/assets/*` immutable caching.
+- **Phase 3 (`7a7426e`, merged `99e1f5b`)** — performance:
+  - `App.tsx` `React.lazy` + `<Suspense>` for admin / login / register / the 6 secondary public
+    pages. `admin.css` import moved into `AdminWorkspace.tsx`.
+  - `vite.config.ts` manualChunks (react-vendor / data-vendor / supabase).
+  - Fonts: removed the render-blocking `@import` in `index.css`; public families via `<link>` in
+    `index.html`; Fraunces via `@import` at the top of `admin.css`.
+  - Result: one 720 KB chunk → entry 307 KB (97 KB gz); admin off the landing page; no size warning.
+
+### Launch content (`e931fde` + `15aafcb`)
+- Footer "where we usually are" — decorative 3-pin card replaced with a real embedded Google map of
+  **The Den — By Danielitos** (`14.1728948, 121.2445589`), The Den + Malaya's Cafe kept as links.
+  Dead `.map-pin` / `.map-label` CSS removed.
+- 3 event posters from the `whatsgoingon/` drop-off → WebP in `client/public/assets/tagpuan/`.
+- **`scripts/seed-content.mjs`** — inserts the one upcoming event **"The Social Room"** (Sep 5,
+  2026, The Den) + 2 recap photos ("Work Session Round 3" Jul 25, "Sunday Sessions" run Aug 2).
+  Idempotent.
+- **`scripts/cleanup-test-data.mjs`** — pattern-deletes `smoke`/`probe` rows from the DB + test
+  uploads from the `media` bucket (via the Storage API). Idempotent; never touches seeded content.
+
+### Database state after this session
+`events` = 1 (the-social-room) · `recapPhotos` = 2 · everything else in the content tables = 0 ·
+`media` bucket = empty. **The prod DB now contains only real launch content.** Re-run
+`node scripts/cleanup-test-data.mjs` after any future smoke run against production.
+
+### Still open (deferred, not blocking launch)
+- Health-pass **Phase 4** (ESLint + `format:check`, ~460 dead CSS lines, remove `framer-motion`) and
+  **Phase 5** (`.github/workflows/ci.yml`, client vitest project, admin-auth server tests).
+- **DB cold-start 504s** — first ~1 min after every deploy the serverless fn times out; fix is
+  `postgres(url, { max: 1, idle_timeout: 20, connect_timeout: 10 })` in `server/db.ts`.
+- **Rotate the Supabase service-role key** — it was pasted in chat; roll it in Supabase → API Keys,
+  update Vercel + local `.env`.
+- The event card crops the portrait poster to its top ~40% (`background-size: cover`); the `.photo-word`
+  "come through" overlay sits on top. Cosmetic — the card carries all the info as text.
 
 ---
 
